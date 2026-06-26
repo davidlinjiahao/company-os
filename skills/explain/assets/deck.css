@@ -1,0 +1,55 @@
+/* ============================================================================
+   DECK canvas. 1920 × 1080 exactly, fixed (never min-height).
+   Link AFTER theme.css. Wrap each slide in <section class="slide">.
+   ============================================================================ */
+
+.deck {
+  /* Type scale — deck */
+  --t-eyebrow:     13px;   /* section labels, page numbers */
+  --t-title:       144px;  /* slide titles */
+  --t-subtitle:    40px;   /* deks, subtitles */
+  --t-body:        26px;   /* body copy */
+  --t-caption:     16px;   /* captions, footnotes */
+  --t-stat-big:    168px;  /* stat numerals */
+  --t-stat-label:  20px;   /* stat labels */
+  --t-card-heading:36px;   /* card titles */
+
+  /* Spacing & heading rhythm — deck */
+  --s-pad-x:           120px; /* left / right safe area */
+  --s-pad-top:         80px;
+  --s-pad-bot:         80px;
+  --s-eyebrow-to-title:28px;
+  --s-title-to-dek:    64px;
+  --s-title-to-block:  108px; /* never hug — open the title→block gap */
+  --s-cluster-gap:     28px;
+  --s-item-gap:        32px;
+}
+
+@page { size: 1920px 1080px; margin: 0; }
+
+.slide {
+  position: relative;
+  width: 1920px;
+  height: 1080px;            /* fixed — violations clip, never grow the canvas */
+  overflow: hidden;
+  padding: var(--s-pad-top) var(--s-pad-x) var(--s-pad-bot);
+  page-break-after: always;
+  background: var(--c-surface);
+  color: var(--c-ink);
+}
+
+.slide .eyebrow { font-size: var(--t-eyebrow); letter-spacing: 0.16em; }
+.slide h1 { font-size: var(--t-title); line-height: 1.0; letter-spacing: -0.03em;
+            margin-top: var(--s-eyebrow-to-title); }
+.slide .dek { font-size: var(--t-subtitle); line-height: 1.25; color: var(--c-dim);
+              margin-top: var(--s-title-to-dek); }
+.slide .body { font-size: var(--t-body); line-height: 1.45; }
+.slide .caption { font-size: var(--t-caption); color: var(--c-dim); }
+
+/* Statement slide — single sentence, 144px+, line-height 1.0, left-aligned,
+   no quote marks, no attribution. */
+.slide.statement h1 { font-size: var(--t-title); line-height: 1.0; }
+
+/* Stat numerals on a deck */
+.deck .stat-row .num { font-size: var(--t-stat-big); line-height: 1.0; }
+.deck .stat-row .label { font-size: var(--t-stat-label); }

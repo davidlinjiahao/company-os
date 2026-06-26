@@ -1,0 +1,48 @@
+/* ============================================================================
+   REPORT canvas. US Letter default (margin 0.75in); A4 only when the
+   brief/source is A4 (margin 20mm). Single column unless content earns two.
+   Link AFTER theme.css.
+   ============================================================================ */
+
+.report {
+  /* Type scale — report */
+  --t-doc-title:  32pt;   /* document title */
+  --t-h2:         18pt;   /* section headings */
+  --t-h3:         13pt;   /* subsection headings */
+  --t-body:       11.5pt; /* body copy */
+  --t-caption:    10pt;   /* captions */
+  --t-eyebrow:    10pt;   /* eyebrows, page numbers */
+  --t-metric-val: 32pt;   /* big metric numbers */
+  --t-metric-lbl: 10pt;   /* metric labels */
+
+  /* Spacing — report */
+  --s-section-gap: 36pt;
+  --s-h2-to-dek:   14pt;
+  --s-h2-to-body:  18pt;
+  --s-h3-to-body:  12pt;
+  --s-para-gap:    12pt;
+  --s-cluster-gap: 16pt;
+}
+
+@page { size: Letter; margin: 0.75in; }
+/* For an A4 source instead:  @page { size: A4; margin: 20mm; } */
+
+.report { font-size: var(--t-body); line-height: 1.45; }
+.report .eyebrow { font-size: var(--t-eyebrow); letter-spacing: 0.16em; }
+.report h1, .report .doc-title { font-size: var(--t-doc-title); letter-spacing: -0.03em;
+                                 line-height: 1.15; }
+.report h2 { font-size: var(--t-h2); margin-top: var(--s-section-gap); }
+.report h2 + p { margin-top: var(--s-h2-to-body); }
+.report h3 { font-size: var(--t-h3); margin-top: var(--s-cluster-gap); }
+.report h3 + p { margin-top: var(--s-h3-to-body); }
+.report p { margin: var(--s-para-gap) 0 0; }
+.report .caption { font-size: var(--t-caption); color: var(--c-dim); }
+
+/* Stat / metric row on a report */
+.report .stat-row .num { font-size: var(--t-metric-val); }
+.report .stat-row .label { font-size: var(--t-metric-lbl); }
+
+/* Print page-break discipline — reports are print-ready. */
+h1, h2, h3, h4                    { break-after: avoid; }
+.card, figure, table, tr, .callout, .stat-row { break-inside: avoid; }
+p                                 { orphans: 3; widows: 3; }
