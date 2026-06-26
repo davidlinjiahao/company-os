@@ -1,0 +1,39 @@
+{
+  "component": "sync",
+  "type": "skill",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "sync-plaud",
+      "category": "functional",
+      "description": "/sync plaud should import Plaud transcripts",
+      "input": {"command": "/sync plaud"},
+      "expected": {"imports_plaud": true, "saves_to": "Obsidian/Transcripts/Plaud/"},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "sync-notion",
+      "category": "functional",
+      "description": "/sync notion should import Notion pages",
+      "input": {"command": "/sync notion abc123"},
+      "expected": {"imports_notion": true, "page_id": "abc123"},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "sync-missing-token",
+      "category": "error-handling",
+      "description": "Should error clearly if token missing",
+      "input": {"command": "/sync notion", "token_set": false},
+      "expected": {"error_message_contains": "NOTION_TOKEN", "provides_instructions": true},
+      "metrics": ["ErrorHandling"]
+    },
+    {
+      "id": "sync-output-format",
+      "category": "functional",
+      "description": "Notion import should produce markdown with frontmatter",
+      "input": {"source": "notion", "page": {"title": "Team Standup", "id": "abc123"}},
+      "expected": {"has_frontmatter": true, "has_title": true, "has_date": true},
+      "metrics": ["Formatting", "Completeness"]
+    }
+  ]
+}

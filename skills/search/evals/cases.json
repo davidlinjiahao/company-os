@@ -1,0 +1,87 @@
+{
+  "component": "search",
+  "type": "skill",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "search-local-only",
+      "category": "functional",
+      "description": "/search --local-only should use qmd only",
+      "input": {"command": "/search 'hiring principles' --local-only"},
+      "expected": {"uses_qmd": true, "skips_web": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "search-web-only",
+      "category": "functional",
+      "description": "/search --web-only should skip local",
+      "input": {"command": "/search 'Claude SDK 2026' --web-only"},
+      "expected": {"skips_qmd": true, "uses_web": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "search-social",
+      "category": "functional",
+      "description": "/search --social should include Reddit + X",
+      "input": {"command": "/search 'AI tools' --social"},
+      "expected": {"includes_reddit": true, "includes_x": true},
+      "metrics": ["TaskCompletion", "Completeness"]
+    },
+    {
+      "id": "search-depth-deep",
+      "category": "functional",
+      "description": "--depth deep should run all sources in parallel",
+      "input": {"command": "/search 'distributed systems' --depth deep"},
+      "expected": {"parallel_sources": ["qmd", "web", "social"]},
+      "metrics": ["TaskCompletion", "Completeness"]
+    },
+    {
+      "id": "search-save",
+      "category": "functional",
+      "description": "/search --save should save report to Obsidian",
+      "input": {"command": "/search 'topic' --save"},
+      "expected": {"saves_to": "Obsidian"},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "search-local-first",
+      "category": "functional",
+      "description": "Default should search local first",
+      "input": {"command": "/search 'hardware decision'"},
+      "expected": {"searches_local_first": true, "asks_if_web_needed": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "search-output-format",
+      "category": "functional",
+      "description": "Output should follow Research Report format",
+      "input": {"command": "/search 'topic'"},
+      "expected": {"contains_sections": ["Local Findings", "Web Findings", "Synthesis"]},
+      "metrics": ["Formatting", "Completeness"]
+    },
+    {
+      "id": "search-qmd-not-installed",
+      "category": "error-handling",
+      "description": "Should handle missing qmd gracefully",
+      "input": {"qmd_installed": false},
+      "expected": {"falls_back_to_web": true, "warns_user": true},
+      "metrics": ["ErrorHandling"]
+    },
+    {
+      "id": "search-collection-filter",
+      "category": "functional",
+      "description": "--collection should filter qmd search",
+      "input": {"command": "/search 'topic' --collection ceo"},
+      "expected": {"searches_collection": "ceo"},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "search-social-graceful",
+      "category": "error-handling",
+      "description": "Should work without social API keys",
+      "input": {"social_keys_set": false, "command": "/search 'topic' --social"},
+      "expected": {"warns_missing_keys": true, "uses_web_fallback": true},
+      "metrics": ["ErrorHandling"]
+    }
+  ]
+}

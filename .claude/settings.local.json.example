@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "notion": {
+      "env": {
+        "NOTION_TOKEN": "your-notion-token-here"
+      }
+    },
+    "obsidian": {
+      "env": {
+        "OBSIDIAN_VAULT_PATH": "/Users/YOU/Documents/ObsidianVault"
+      }
+    }
+  }
+}
