@@ -18,6 +18,7 @@ This is a shared Claude Code team environment. Customize `company-os.config.sh` 
 | `/decide [question]` | Structured decision framework. 1-way vs 2-way doors. Saves to Obsidian + Notion. |
 | `/eval [component]` | Universal evaluation framework for Skills. Also: `/eval secure` for security audits. |
 | `/focus [capture list]` | Brain dump -> prioritized action plan. Also: `/focus read [urls]`, `/focus timeaudit`. |
+| `/momtest [idea]` | Generate a bias-free Mom Test interview-question bank for customer discovery / problem validation. |
 | `/search [topic]` | Deep research: local qmd + vault knowledge + Firecrawl + Parallel.ai + Reddit/X. |
 | `/sync <source>` | Sync Notion pages/databases and Plaud transcripts to Obsidian vault. |
 | `/learn [topic]` | Claude Code best practices: hooks, subagents, parallelization, evals, TDD. |

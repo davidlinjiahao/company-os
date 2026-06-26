@@ -57,7 +57,7 @@ bash ~/company-os/setup/steps/09-verify.sh    # Health checks only
 
 Company OS is a shared repo that turns every engineer into a 10x Claude Code user. After setup, your machine has:
 
-- **8 slash commands** — `/setup` for onboarding, `/build` to ship features, `/decide` for structured decisions, `/search` for deep research, `/eval` for testing and security, and more
+- **9 slash commands** — `/setup` for onboarding, `/build` to ship features, `/decide` for structured decisions, `/search` for deep research, `/eval` for testing and security, and more
 - **4 MCP servers** — Notion integration, git-aware Obsidian vault, Plaud transcripts, team knowledge vault
 - **Shared CLAUDE.md** — company context, coding standards, and safety rules that every Claude session reads
 - **Automatic SSH key setup** — generates SSH keys and uploads them to GitHub
@@ -75,6 +75,7 @@ Type these in any Claude Code session. Each runs a specialized workflow.
 | **decide** | `/decide [question]` | Structured decision framework — 1-way vs 2-way doors, Council deliberation |
 | **eval** | `/eval [component]` | Run evaluation suite on MCPs, agents, or skills. Also: `/eval secure` for security audits |
 | **focus** | `/focus [brain dump]` | Paste messy thoughts, get a prioritized action plan |
+| **momtest** | `/momtest [idea]` | Generate a bias-free Mom Test interview-question bank for customer discovery |
 | **search** | `/search [topic]` | Deep research: vault + knowledge graph + web + Reddit/X |
 | **sync** | `/sync [source]` | Sync Notion or Plaud data to the vault |
 | **learn** | `/learn [topic]` | Claude Code best practices reference |
@@ -145,12 +146,13 @@ company-os/
 │       ├── 09-verify.sh   # Health checks (standalone)
 │       └── 10-summary.sh  # Final status table
 ├── .env.tpl               # 1Password secret template
-├── skills/                # 8 slash commands
+├── skills/                # 9 slash commands
 │   ├── setup/             # /setup — interactive onboarding
 │   ├── build/             # /build — dev workflow
 │   ├── decide/            # /decide — decision framework
 │   ├── eval/              # /eval — evaluation + security audits
 │   ├── focus/             # /focus — brain dump → action plan
+│   ├── momtest/           # /momtest — Mom Test interview questions
 │   ├── learn/             # /learn — Claude Code best practices
 │   ├── search/            # /search — deep multi-source research
 │   └── sync/              # /sync — external data sync
