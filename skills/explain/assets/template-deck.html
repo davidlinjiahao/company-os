@@ -1,0 +1,59 @@
+<!doctype html>
+<!-- DECK skeleton. Copy, then replace content. Each <section class="slide">
+     is one 1920x1080 page. Add class="dark" to a slide to invert. Keep one
+     quadrant deliberately empty. Render with render.py, then check-overflow.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="deck.css">
+</head>
+<body class="deck">
+
+  <!-- COVER -->
+  <section class="slide">
+    <div class="eyebrow">Design System · House Reference</div>
+    <h1>Deck title goes<br>here, left-aligned</h1>
+    <div class="dek">One-line dek in dim ink. Satoshi for prose,
+      Roboto&nbsp;Mono for every label.</div>
+  </section>
+
+  <!-- STATEMENT (dark) — single sentence, 144px, no quotes, no attribution -->
+  <section class="slide dark statement">
+    <div class="eyebrow">Section 01</div>
+    <h1>One committed sentence.<br>No atmospheric fog.</h1>
+  </section>
+
+  <!-- STAT ROW — 3–4 cards, single vertical hairline between them -->
+  <section class="slide">
+    <div class="eyebrow">At a glance</div>
+    <h1 style="font-size:72px">The numbers</h1>
+    <div class="stat-row" style="margin-top:var(--s-title-to-block)">
+      <div><span class="num">2</span><span class="label">surface values</span></div>
+      <div><span class="num">2</span><span class="label">type families</span></div>
+      <div><span class="num">0</span><span class="label">border radius</span></div>
+      <div><span class="num">0</span><span class="label">accent colours</span></div>
+    </div>
+  </section>
+
+  <!-- BODY + TABLE -->
+  <section class="slide">
+    <div class="eyebrow">02 · Detail</div>
+    <h1 style="font-size:72px">A content slide</h1>
+    <p class="body" style="margin-top:var(--s-title-to-dek);max-width:1400px">
+      Body copy at the 65–80 character measure. Tables flow to the same left
+      edge as the heading; numerics right-align, text left-aligns.</p>
+    <!-- NB: WeasyPrint ignores max-width on a <table>; it fills the content box
+         (here 1680px, edge-to-edge of the safe area). Wrap it in a width-capped
+         <div> if you need it narrower. -->
+    <table style="margin-top:var(--s-cluster-gap)">
+      <thead><tr><th>Metric</th><th class="num">Before</th><th class="num">After</th></tr></thead>
+      <tbody>
+        <tr><td>p99 latency</td><td class="num">840 ms</td><td class="num">210 ms</td></tr>
+        <tr><td>Run cost (indexed)</td><td class="num">100</td><td class="num">69</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<!-- REPORT skeleton. Copy, then replace content. Single column unless
+     content earns two. Default US Letter (report.css sets @page). Budget content
+     so pages fill — do NOT leave a near-empty tail page. Render with render.py,
+     then check-report.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="report.css">
+</head>
+<body class="report">
+
+  <!-- Title block: eyebrow, then the doc title as <h1>. Never hug — the type
+       scale opens the gap for you. -->
+  <div class="eyebrow">Q2 · Infrastructure</div>
+  <h1>Document title, left-aligned, with negative&nbsp;tracking</h1>
+
+  <h2>Section heading</h2>
+  <p>Lead paragraph in Satoshi 400 at a 65–80 character measure. Reorganize the
+    source into a handful of dense sections — don't dump it. Preserve facts;
+    mark estimates as estimates.</p>
+
+  <!-- Metric row — single vertical hairline between cards -->
+  <div class="stat-row" style="margin-top:var(--s-cluster-gap)">
+    <div><span class="num">210ms</span><span class="label">p99 latency · was 840ms</span></div>
+    <div><span class="num">−75%</span><span class="label">tail latency</span></div>
+    <div><span class="num">−31%</span><span class="label">run cost vs Q1</span></div>
+  </div>
+
+  <h2>Before / after</h2>
+  <table>
+    <thead><tr><th>Metric</th><th class="num">Before</th><th class="num">After</th><th class="num">Delta</th></tr></thead>
+    <tbody>
+      <tr><td>p99 latency</td><td class="num">840 ms</td><td class="num">210 ms</td><td class="num">−75%</td></tr>
+      <tr><td>Run cost (indexed)</td><td class="num">100</td><td class="num">69</td><td class="num">−31%</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Open risk</h2>
+  <p>One emphasis moment per spread. The new worker queue has no backpressure;
+    under a traffic spike it grows unbounded and OOMs the workers.</p>
+
+  <!-- Callout: fill is ink at low alpha (sanctioned), not an off-white surface -->
+  <div class="callout">
+    <div class="eyebrow">Decision</div>
+    <p>Ship backpressure on the worker queue before the July launch. No spike
+      protection, no launch.</p>
+  </div>
+
+</body>
+</html>

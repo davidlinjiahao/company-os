@@ -1,0 +1,151 @@
+/* style.css — candidate-list PDF house style.
+   A4 landscape (wide candidate tables), ~8pt body, teal headers,
+   wrapped fixed-layout tables, blue clickable links, page-number footer. */
+
+@page {
+  size: A4 landscape;
+  margin: 14mm 12mm 16mm 12mm;
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 7pt;
+    color: #64748b;
+  }
+}
+
+html {
+  font-size: 8pt;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  font-size: 8pt;
+  line-height: 1.45;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* ---- headings ---- */
+h1 {
+  font-size: 17pt;
+  color: #0f766e;
+  border-bottom: 2.5px solid #0f766e;
+  padding-bottom: 4px;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.2px;
+}
+
+h2 {
+  font-size: 12.5pt;
+  color: #0f766e;
+  border-bottom: 1px solid #99f6e4;
+  padding-bottom: 2px;
+  margin: 16px 0 7px 0;
+}
+
+h3 {
+  font-size: 10pt;
+  color: #115e59;
+  margin: 11px 0 4px 0;
+}
+
+h4, h5, h6 {
+  font-size: 8.5pt;
+  color: #134e4a;
+  margin: 8px 0 3px 0;
+}
+
+p {
+  margin: 4px 0;
+}
+
+/* ---- links: blue, real annotations ---- */
+a {
+  color: #1d4ed8;
+  text-decoration: none;
+  word-break: break-all;
+}
+a:hover { text-decoration: underline; }
+
+/* ---- tables: fixed layout so wide candidate tables wrap, not overflow ---- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 8px 0 12px 0;
+  font-size: 7.5pt;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+th, td {
+  border: 0.6px solid #cbd5e1;
+  padding: 3.5px 5px;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+thead th {
+  background: #ecfdf5;
+  color: #0f766e;
+  font-weight: 700;
+  border-bottom: 1.2px solid #0f766e;
+}
+
+tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+/* ---- code ---- */
+code, pre {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 7.5pt;
+}
+code {
+  background: #f1f5f9;
+  padding: 0.5px 3px;
+  border-radius: 3px;
+  color: #be123c;
+  word-break: break-all;
+}
+pre {
+  background: #f1f5f9;
+  border: 0.6px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 7px 9px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+pre code {
+  background: none;
+  padding: 0;
+  color: #1f2937;
+}
+
+/* ---- lists ---- */
+ul, ol {
+  margin: 4px 0 4px 0;
+  padding-left: 18px;
+}
+li { margin: 1.5px 0; }
+
+/* ---- blockquote (used for notes / blind spots) ---- */
+blockquote {
+  border-left: 3px solid #0f766e;
+  background: #f0fdfa;
+  margin: 7px 0;
+  padding: 4px 10px;
+  color: #134e4a;
+}
+
+/* ---- rules ---- */
+hr {
+  border: none;
+  border-top: 1px solid #cbd5e1;
+  margin: 12px 0;
+}
+
+strong { color: #0f172a; }
+em { color: #334155; }

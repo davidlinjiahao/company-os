@@ -1,0 +1,45 @@
+/* ============================================================================
+   EXPLAINER components — layered on theme.css (+ report.css or deck.css).
+   Pedagogy primitives: inline definitions (no glossary), figures/diagrams.
+   Monochrome, square, opacity-as-grayscale — same contract as the theme.
+   Link AFTER theme.css and the canvas file.
+   ============================================================================ */
+
+/* Inline definitions ONLY — defined the first time a term appears, in place.
+   No glossary, no end-of-document or front vocabulary list.
+
+   Key term, first/defined use — bold ink, no colour:
+     <span class="term">Smelting</span> <span class="gloss">(using heat to
+     extract a crude metal)</span>
+   The gloss that follows is dim and parenthetical. */
+.term  { font-weight: 500; }
+.gloss { color: var(--c-dim); }
+
+/* Acronym expansion inline: <abbr title="...">IEA</abbr> still reads as text;
+   spell it out in prose too. Keep abbr unstyled (no dotted underline chrome). */
+abbr { text-decoration: none; }
+
+/* ---- Figures & diagrams -------------------------------------------------- */
+/* A diagram (inline mermaid SVG) or any figure. Never strands a page. */
+figure {
+  margin: var(--s-cluster-gap, 16pt) 0 0;
+  break-inside: avoid;
+}
+figure svg, figure img { max-width: 100%; height: auto; display: block; }
+figure.diagram { padding: 16pt 0; }
+figcaption {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--c-dim);
+  font-size: var(--t-caption, 10pt);
+  margin-top: 10pt;
+}
+
+/* A figure on a deck slide centers in its remaining space. */
+.slide figure { margin-top: var(--s-title-to-dek); }
+
+/* ---- "Why this matters" / takeaway line ---------------------------------- */
+/* A dim lead-in label inline, per the reference ("Why this matters to you:"). */
+.takeaway { color: var(--c-dim); margin-top: var(--s-cluster-gap, 16pt); }
+.takeaway b, .takeaway strong { color: var(--c-ink); }
