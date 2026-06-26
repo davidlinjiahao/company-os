@@ -1,0 +1,2 @@
+weasyprint>=60.0
+pymupdf>=1.23.0

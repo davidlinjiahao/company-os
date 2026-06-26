@@ -1,0 +1,128 @@
+/* ============================================================================
+   HOUSE STYLE — house design system
+   Monochrome editorial. Two surfaces (#000/#FFF), two families
+   (Satoshi + Roboto Mono), zero radius, zero colored accent.
+   This file IS the contract the whole system compiles down to.
+   Link it on every artifact, then add deck.css OR report.css.
+   ============================================================================ */
+
+/* Fonts — Satoshi for prose, Roboto Mono for labels. Remote @import works in
+   WeasyPrint with a network-enabled url_fetcher (see render.py). If you must
+   render offline, install Satoshi + Roboto Mono locally and drop these. */
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Typography */
+  --font-display: "Satoshi", -apple-system, sans-serif;
+  --font-body:    "Satoshi", -apple-system, sans-serif;
+  --font-mono:    "Roboto Mono", monospace;
+  --w-display:    500;
+  --w-body:       400;
+
+  /* Colour — monochrome + opacity. Opacity IS the gray scale. */
+  --c-surface:     #FFFFFF;
+  --c-ink:         #000000;
+  --c-dim:         rgba(0, 0, 0, 0.55);   /* subtitles, captions, eyebrows */
+  --c-faint:       rgba(0, 0, 0, 0.35);   /* dates, colophon URL */
+  --c-line:        rgba(0, 0, 0, 0.12);   /* dividers, table rows */
+  --c-fill-subtle: rgba(0, 0, 0, 0.04);   /* subtle fills */
+  --c-fill-alt:    rgba(0, 0, 0, 0.06);   /* quiet card backgrounds */
+
+  /* Shape */
+  --radius: 0;
+
+  /* Brand gradient — RESERVED, NEVER APPLIED. Identity in reserve, not
+     decoration. No CSS rule references this on a finished artifact. */
+  --g-house: linear-gradient(135deg, #D1C2F4 0%, #DEC2EE 48%, #FFDC61 100%);
+}
+
+/* Dark surface (inverted). Apply with <body class="dark"> or on a slide.
+   Every token flips; the names stay identical. */
+.dark {
+  --c-surface:     #000000;
+  --c-ink:         #FFFFFF;
+  --c-dim:         rgba(255, 255, 255, 0.55);
+  --c-faint:       rgba(255, 255, 255, 0.35);
+  --c-line:        rgba(255, 255, 255, 0.14);
+  --c-fill-subtle: rgba(255, 255, 255, 0.05);
+  --c-fill-alt:    rgba(255, 255, 255, 0.08);
+}
+
+/* ---- Base ---------------------------------------------------------------- */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  border-radius: var(--radius);   /* 0 everywhere, no exceptions */
+}
+
+body {
+  margin: 0;
+  background: var(--c-surface);
+  color: var(--c-ink);
+  font-family: var(--font-body);
+  font-weight: var(--w-body);
+  /* Tabular lining figures — numerals align by column. */
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
+  text-wrap: pretty;              /* no runts in body */
+}
+
+/* Display type — Satoshi 500, negative tracking earned at size. */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: var(--w-display);
+  text-wrap: balance;
+  margin: 0;
+}
+
+/* Eyebrows / labels / metadata — Roboto Mono, tracked uppercase, dim. */
+.eyebrow, .label, .meta, thead th, .mono {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--c-dim);
+}
+
+a { color: inherit; }              /* <a href> still emits clickable PDF links */
+
+/* ---- Tables -------------------------------------------------------------- */
+/* 1px top + bottom frame; 1px row hairline; no vertical borders; no zebra. */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--c-ink);
+  border-bottom: 1px solid var(--c-ink);
+}
+thead th {
+  text-align: left;
+  font-weight: 400;
+}
+tbody tr:not(:last-child) { border-bottom: 1px solid var(--c-line); }
+td, th { padding: 10px 0; vertical-align: baseline; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }  /* right-align numerics */
+
+/* ---- Stat rows ----------------------------------------------------------- */
+/* 3–4 cards in a row; single 1px vertical hairline is the ONLY sanctioned
+   vertical line in the system. */
+.stat-row { display: flex; }
+.stat-row > * { flex: 1; min-width: 0; padding: 0 24px; }
+.stat-row > * + * { border-left: 1px solid var(--c-line); }
+/* Numeral defaults left; it MAY center inside its card for weight (label stays
+   left). Override per card with style="text-align:center" when you want it. */
+.stat-row .num { letter-spacing: -0.02em; font-weight: 500; text-align: left; }
+.stat-row .label { display: block; margin-top: 8px; }
+
+/* ---- Callout ------------------------------------------------------------- */
+.callout {
+  background: var(--c-fill-alt);
+  border: 1px solid var(--c-line);
+  padding: 22px 26px;
+}
+
+/* ---- Charts -------------------------------------------------------------- */
+/* Inline SVG only. Line: 2px ink stroke, no markers, no fill. Bar: solid ink,
+   ~40% width, hair gaps. Pie charts are BANNED. Gridlines at --c-line. */
+.chart .series  { stroke: var(--c-ink); stroke-width: 2; fill: none; }
+.chart .series2 { stroke: var(--c-dim); stroke-width: 2; fill: none; }
+.chart .grid    { stroke: var(--c-line); stroke-width: 1; }
+.chart .bar     { fill: var(--c-ink); }

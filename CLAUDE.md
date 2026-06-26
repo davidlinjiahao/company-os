@@ -19,6 +19,9 @@ This is a shared Claude Code team environment. Customize `company-os.config.sh` 
 | `/eval [component]` | Universal evaluation framework for Skills. Also: `/eval secure` for security audits. |
 | `/focus [capture list]` | Brain dump -> prioritized action plan. Also: `/focus read [urls]`, `/focus timeaudit`. |
 | `/momtest [idea]` | Generate a bias-free Mom Test interview-question bank for customer discovery / problem validation. |
+| `/explain [topic]` | Turn any topic or document into a clear, visual explainer PDF (defines terms inline, auto-picks the right diagram). |
+| `/legal [contract]` | Redline a contract term-by-term → tracked-changes .docx + plain-English summary PDF. |
+| `/source [role]` | Turn a hiring need into a ranked A-grade candidate list (WHO scorecard + multi-source sweep → PDF). |
 | `/search [topic]` | Deep research: local qmd + vault knowledge + Firecrawl + Parallel.ai + Reddit/X. |
 | `/sync <source>` | Sync Notion pages/databases and Plaud transcripts to Obsidian vault. |
 | `/learn [topic]` | Claude Code best practices: hooks, subagents, parallelization, evals, TDD. |
