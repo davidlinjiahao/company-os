@@ -1,0 +1,24 @@
+# User-specific Claude Code settings (secrets, local paths)
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Environment
+.env
+
+# Workflow gate session state (markers, logs)
+.claude/session-state/
+
+# Company-specific config (contains your org's secrets/names)
+company-os.config.sh
+
+# Defensive: in-progress onboarding skill holds unsanitized content — never commit until scrubbed
+skills/onboard/
+# Build artifacts / deps
+.next/
+node_modules/
+__pycache__/
+*.pyc

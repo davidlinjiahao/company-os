@@ -1,0 +1,88 @@
+{
+  "component": "eval",
+  "type": "skill",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "eval-list-components",
+      "category": "functional",
+      "description": "/eval --list should list all evaluatable components",
+      "input": {"command": "/eval --list"},
+      "expected": {"lists_agents": true, "lists_mcps": true, "lists_skills": true},
+      "metrics": ["TaskCompletion", "Completeness"]
+    },
+    {
+      "id": "eval-run-mcp",
+      "category": "functional",
+      "description": "/eval [mcp] should run MCP evals",
+      "input": {"command": "/eval council"},
+      "expected": {"runs_evals": true, "produces_summary": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "eval-run-skill",
+      "category": "functional",
+      "description": "/eval [skill] should run skill evals",
+      "input": {"command": "/eval search"},
+      "expected": {"runs_evals": true, "produces_summary": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "eval-generate-cases",
+      "category": "functional",
+      "description": "/eval --generate should create cases.json",
+      "input": {"command": "/eval council --generate"},
+      "expected": {"creates_file": "evals/cases.json"},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "eval-verbose-output",
+      "category": "functional",
+      "description": "/eval --verbose should show per-case details",
+      "input": {"command": "/eval council --verbose"},
+      "expected": {"shows_per_case": true, "shows_scores": true},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "eval-output-format",
+      "category": "functional",
+      "description": "Output should follow standard format",
+      "input": {"command": "/eval council"},
+      "expected": {"contains_sections": ["SUMMARY", "RECOMMENDATIONS"], "shows_pass_rate": true},
+      "metrics": ["Formatting", "Completeness"]
+    },
+    {
+      "id": "eval-component-detection",
+      "category": "functional",
+      "description": "Should auto-detect component type",
+      "input": {"target": "council"},
+      "expected": {"detected_type": "mcp"},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "eval-smoke-tests",
+      "category": "functional",
+      "description": "Should generate smoke tests if no cases exist",
+      "input": {"target": "new-component", "has_cases": false},
+      "expected": {"generates_smoke_tests": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "eval-inspect-ai",
+      "category": "functional",
+      "description": "Should use Inspect AI if inspect folder exists",
+      "input": {"target": "component", "has_inspect": true},
+      "expected": {"uses_inspect_ai": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "eval-save-results",
+      "category": "functional",
+      "description": "/eval --save should save to Obsidian (planned)",
+      "input": {"command": "/eval council --save"},
+      "expected": {"saves_to": "Obsidian/Code/Evals/"},
+      "metrics": ["TaskCompletion"],
+      "status": "planned"
+    }
+  ]
+}

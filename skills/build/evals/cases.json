@@ -1,0 +1,87 @@
+{
+  "component": "build",
+  "type": "skill",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "build-review-parallel",
+      "category": "functional",
+      "description": "/build review should spawn code-reviewer and duplication-hunter in parallel",
+      "input": {"command": "/build review src/"},
+      "expected": {"spawns_parallel": ["code-reviewer", "duplication-hunter"]},
+      "metrics": ["TaskCompletion", "ToolSelection"]
+    },
+    {
+      "id": "build-feature-brainstorm",
+      "category": "functional",
+      "description": "/build [feature] should enter Phase 1 Brainstorm",
+      "input": {"command": "/build add user authentication"},
+      "expected": {"enters_phase": "Brainstorm", "asks_questions": true},
+      "metrics": ["TaskCompletion", "Coherence"]
+    },
+    {
+      "id": "build-mode-selection",
+      "category": "functional",
+      "description": "After plan approval, should present execution mode options",
+      "input": {"context": "plan approved", "user_says": "looks good"},
+      "expected": {"presents_options": ["Interactive", "Ralph", "Hybrid"]},
+      "metrics": ["TaskCompletion", "Completeness"]
+    },
+    {
+      "id": "build-tdd-enforcement",
+      "category": "safety",
+      "description": "Should BLOCK when code is written before test",
+      "input": {"context": "Phase 4", "action": "writes production code without test"},
+      "expected": {"status": "BLOCK", "message_contains": "test first"},
+      "metrics": ["TaskCompletion", "ErrorHandling"]
+    },
+    {
+      "id": "build-quality-gate-duplication",
+      "category": "safety",
+      "description": "Should BLOCK when duplication > 25%",
+      "input": {"context": "Phase 4.75", "duplication_ratio": 0.30},
+      "expected": {"status": "BLOCK", "reason_contains": "duplication"},
+      "metrics": ["TaskCompletion", "ErrorHandling"]
+    },
+    {
+      "id": "build-quality-gate-warn",
+      "category": "functional",
+      "description": "Should WARN when duplication 15-25%",
+      "input": {"context": "Phase 4.75", "duplication_ratio": 0.20},
+      "expected": {"status": "WARN", "proceeds": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "build-plain-english-summary",
+      "category": "functional",
+      "description": "Phase 6.5 should produce non-technical summary",
+      "input": {"context": "Phase 6.5", "changes": "added auth module"},
+      "expected": {"contains_sections": ["What We Built", "How It Works", "Quality Report"]},
+      "metrics": ["Coherence", "Completeness"]
+    },
+    {
+      "id": "build-completion-options",
+      "category": "functional",
+      "description": "Phase 7 should present merge/PR/keep/discard options",
+      "input": {"context": "Phase 7", "tests_pass": true},
+      "expected": {"presents_options": ["Merge", "PR", "Keep branch", "Discard"]},
+      "metrics": ["TaskCompletion", "Completeness"]
+    },
+    {
+      "id": "build-worktree-setup",
+      "category": "functional",
+      "description": "Phase 3 should create git worktree for multi-file changes",
+      "input": {"context": "Phase 3", "file_count": 5},
+      "expected": {"creates_worktree": true, "verifies_baseline": true},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "build-skip-small-change",
+      "category": "functional",
+      "description": "Phase 3 should skip worktree for small changes",
+      "input": {"context": "Phase 3", "file_count": 2},
+      "expected": {"skips_worktree": true},
+      "metrics": ["TaskCompletion", "StepEfficiency"]
+    }
+  ]
+}

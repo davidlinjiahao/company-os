@@ -1,0 +1,9 @@
+{
+  "name": "vault-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^3.24.0"
+  }
+}

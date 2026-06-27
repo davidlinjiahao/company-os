@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.company-os.plaud-sync</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>__REPO_DIR__/mcps/plaud-mcp/daemon/run.sh</string>
+    </array>
+    <key>StartInterval</key>
+    <integer>1800</integer>
+    <key>StandardOutPath</key>
+    <string>__HOME__/Library/Logs/company-os-plaud-sync.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Library/Logs/company-os-plaud-sync.log</string>
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>
