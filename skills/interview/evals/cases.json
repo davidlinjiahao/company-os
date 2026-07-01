@@ -1,0 +1,62 @@
+{
+  "component": "interview",
+  "type": "skill",
+  "version": "1.0",
+  "description": "Behavioral eval for the /interview skill (Plaud share URL -> terse interview notes). NOTE: these cases must be run by a COLD agent that has the Plaud MCP + Bash (the live pipeline needs curl + mcp__plaud__*); a plain model call cannot execute them. Each executor reads SKILL.md and follows it; an LLM judge scores the run against the ground truth. The URLs/ids below are ILLUSTRATIVE PLACEHOLDERS — swap in your own Plaud share links and the file_ids/themes they resolve to before running.",
+  "cases": [
+    {
+      "id": "functional-short-inline",
+      "category": "functional",
+      "description": "Short call (<~40m) returns the transcript inline (no file persistence).",
+      "input": {"command": "/interview https://web.plaud.ai/s/pub_EXAMPLE_SHORT_INLINE::REPLACE_WITH_A_REAL_SHARE_TOKEN"},
+      "expected": {
+        "resolves_file_id": "<expected-file-id>",
+        "required_tools": ["mcp__plaud__get_transcript"],
+        "forbidden_tools": ["mcp__plaud__search_transcripts"],
+        "format_3_to_5_terse_bullets": true,
+        "no_fabricated_urls": true
+      },
+      "metrics": ["TaskCompletion", "ToolSelection", "Formatting", "FactualAccuracy"]
+    },
+    {
+      "id": "functional-long-persist-to-file",
+      "category": "functional",
+      "description": "Long call (>~40m) exceeds the token limit -> transcript persisted to a file; tests the jq/python .transcript extraction branch.",
+      "input": {"command": "/interview https://web.plaud.ai/s/pub_EXAMPLE_LONG_PERSIST::REPLACE_WITH_A_REAL_SHARE_TOKEN"},
+      "expected": {
+        "resolves_file_id": "<expected-file-id>",
+        "transcript_source": "file",
+        "required_tools": ["mcp__plaud__get_transcript"],
+        "forbidden_tools": ["mcp__plaud__search_transcripts"],
+        "format_3_to_5_terse_bullets": true,
+        "no_fabricated_urls": true
+      },
+      "metrics": ["TaskCompletion", "ToolSelection", "Formatting", "FactualAccuracy"]
+    },
+    {
+      "id": "edge-title-mismatch",
+      "category": "edge",
+      "description": "Share-page title is auto-generated (not a clean '[Customer - X] Interview') and/or the call has 3+ speakers. Tests resolution despite the title/type mismatch + correct interviewee attribution (the non-host speaker).",
+      "input": {"command": "/interview https://web.plaud.ai/s/pub_EXAMPLE_TITLE_MISMATCH::REPLACE_WITH_A_REAL_SHARE_TOKEN"},
+      "expected": {
+        "resolves_file_id": "<expected-file-id>",
+        "attributes_notes_to_interviewee_not_host": true,
+        "flags_ambiguity_honestly": true,
+        "no_fabricated_urls": true
+      },
+      "metrics": ["TaskCompletion", "Formatting", "FactualAccuracy"]
+    },
+    {
+      "id": "error-handling-bad-url",
+      "category": "error-handling",
+      "description": "Well-formed but invalid/expired share URL. Correct behavior = graceful failure identifying the failed step, NO fabricated title/file_id/notes.",
+      "input": {"command": "/interview https://web.plaud.ai/s/pub_00000000-0000-0000-0000-000000000000::ZZZZinvalidtokenZZZZ0000000000000000000000000000000000000000"},
+      "expected": {
+        "failed": true,
+        "reports_failed_step": true,
+        "does_not_fabricate_title_or_file_id_or_notes": true
+      },
+      "metrics": ["ErrorHandling", "FactualAccuracy"]
+    }
+  ]
+}
