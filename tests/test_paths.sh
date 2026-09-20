@@ -45,15 +45,34 @@ check "setup/verify.sh"
 check_executable "setup/verify.sh"
 check "setup/lib/colors.sh"
 check "setup/lib/utils.sh"
-for step in 01-cli 02-ssh 03-apps 04-1password 05-skills 06-mcps 07-daemon 08-vault 09-verify 10-summary; do
+for step in 01-cli 02-ssh 03-apps 04-1password 05-skills 06-mcps 07-daemon 08-vault 09-verify 10-summary 11-qm; do
     check "setup/steps/${step}.sh"
 done
+check_executable "setup/steps/11-qm.sh"
+
+echo ""
+echo "QM deployment (official scaffold, no org secrets):"
+check "package.json"
+check "qm.config.jsonc"
+check ".env.example"
+check "deployment.md"
+check "AGENTS.md"
+check "slack-app-manifest.yml"
+check "sandbox/skills/greet/SKILL.md"
+check ".codex/skills/deploy-qm/SKILL.md"
+check ".codex/skills/company-os-deploy/SKILL.md"
+check ".codex/skills/company-os-deploy/references/channels.md"
 
 echo ""
 echo "Hook paths from settings.json:"
-for hook_path in $(grep -oE 'upgrades/hooks/[a-z_-]+\.sh' "$REPO_DIR/.claude/settings.json"); do
-    check "$hook_path"
-done
+if grep -qE 'upgrades/hooks/' "$REPO_DIR/.claude/settings.json" 2>/dev/null; then
+    for hook_path in $(grep -oE 'upgrades/hooks/[a-z_-]+\.sh' "$REPO_DIR/.claude/settings.json"); do
+        check "$hook_path"
+    done
+else
+    echo "  PASS  no hook scripts referenced (upgrades/ is not part of this template)"
+    PASS=$((PASS + 1))
+fi
 
 echo ""
 echo "Vault MCP daemon:"
@@ -101,16 +120,13 @@ echo ""
 echo "Skills (each must have SKILL.md):"
 for dir in "$REPO_DIR"/skills/*/; do
     skill=$(basename "$dir")
-    check "skills/$skill/SKILL.md"
+    rel="skills/$skill/SKILL.md"
+    if git -C "$REPO_DIR" check-ignore -q "skills/$skill" 2>/dev/null; then
+        echo "  SKIP  $rel (gitignored — not part of the public template)"
+        continue
+    fi
+    check "$rel"
 done
-
-echo ""
-echo "Upgrades:"
-check "upgrades/hooks"
-check "upgrades/learnings"
-check "upgrades/tools"
-check "upgrades/developer"
-check "upgrades/researcher"
 
 echo ""
 echo "────────────────────────"

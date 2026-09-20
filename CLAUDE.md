@@ -8,13 +8,15 @@ This is a shared Claude Code team environment. Customize `company-os.config.sh` 
 
 - **Team**: Configure team in `company-os.config.sh`
 - **Stack**: Configure stack in `company-os.config.sh`
+- **Company agent (optional)**: this repo is a [QM](https://github.com/yc-software/qm) deployment directory. Runtime is the npm package `@yc-software/qm` pinned in `package.json`. `./setup.sh` installs the CLI. Deploy is manual: `npm exec qm -- setup` then `npm exec qm -- up`. Never commit `.env`. Never copy another organization's Fly apps or keys. See `AGENTS.md` and `deployment.md`.
 
 ## Available Skills
 
 | Skill | Description |
 |-------|-------------|
-| `/setup` | One-command onboarding — interactive setup through Claude Code's UI. |
-| `/build [feature]` | Complete dev workflow: brainstorm -> plan -> TDD -> review -> ship. |
+| `/setup` | One-command onboarding — interactive setup through Claude Code's UI. Laptop only; does not deploy QM. |
+| `/deploy` (agent) | Cloud company agent: follow `.codex/skills/company-os-deploy/SKILL.md`. Slack bot + channels. Never `qm init`. |
+| `/build [feature]` | Complete dev workflow with scope challenge, TDD, safety review, QA, evals, and automated shipping. Also: `/build review`, `/build qa`, `/build ship`, `/build eval`. |
 | `/decide [question]` | Structured decision framework. 1-way vs 2-way doors. Saves to Obsidian + Notion. |
 | `/eval [component]` | Universal evaluation framework for Skills. Also: `/eval secure` for security audits. |
 | `/focus [capture list]` | Brain dump -> prioritized action plan. Also: `/focus read [urls]`, `/focus timeaudit`. |
@@ -37,7 +39,7 @@ company-os/
 │   ├── init.sh            # Entrypoint: sources libs, runs steps in order
 │   ├── verify.sh          # Standalone health checks shortcut
 │   ├── lib/               # Shared helpers (colors, utils)
-│   └── steps/             # 01-cli.sh through 10-summary.sh
+│   └── steps/             # 01-cli.sh through 11-qm.sh
 ├── .env.tpl               ← 1Password secret template
 ├── .claude/settings.json  ← MCP + hooks config (auto-loaded)
 ├── mcps/
@@ -55,12 +57,8 @@ company-os/
 │   ├── search/            # Deep research skill
 │   ├── setup/             # Interactive onboarding skill
 │   └── sync/              # External data sync skill
-├── upgrades/              # Staging area — playbooks & tools being evaluated
-│   ├── developer/         # Developer playbook (workflow gates, knowledge lifecycle)
-│   ├── researcher/        # AI research kit (paper discovery, analysis, indexing)
-│   ├── hooks/             # Workflow enforcement hooks
-│   ├── learnings/         # Team instinct system
-│   └── tools/             # Research tooling
+├── sandbox/               # QM sandbox example
+├── .codex/skills/         # Agent deploy: company-os-deploy + upstream deploy-qm
 └── tests/                 # Integration tests for repo structure
 ```
 
@@ -100,6 +98,11 @@ MCPs are installed at the **user level** by `/setup`, so they work in every Clau
 ### Tool Usage
 - Bias toward slash commands for one-off tasks
 - Use skills for repeatable problem domains
+
+## TODOS.md Convention
+
+If `TODOS.md` exists at repo root, skills read it at start and update at end.
+Format: `- [ ] P1: description (added YYYY-MM-DD)`
 
 ## Safety
 

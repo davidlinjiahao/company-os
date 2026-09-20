@@ -1,5 +1,6 @@
 # User-specific Claude Code settings (secrets, local paths)
 .claude/settings.local.json
+.DS_Store
 
 # Python
 __pycache__/
@@ -22,3 +23,6 @@ skills/onboard/
 node_modules/
 __pycache__/
 *.pyc
+
+# qm
+.generated/

@@ -1,0 +1,69 @@
+{
+  // The deployment contract major this directory conforms to.
+  "contract": 1,
+
+  // Short identifier for your organization; app and container names derive from it.
+  "orgId": "your-company",
+
+  // The one public address of the deployment; the service URLs derive from it.
+  "publicUrl": "https://your-company-portal.fly.dev",
+
+  // Optional bot identity. "botName" is what the bot is called everywhere users
+  // see it — the Slack app, the prompt identity, sign-in pages — and "orgName"
+  // is how the bot refers to your organization. Both default to neutral values
+  // ("qm" / "this organization") and can be changed live from the Admin page.
+  // "botName": "straylight",
+  // "orgName": "Acme Corp",
+
+  // Where to deploy: "docker" runs local containers, "fly" deploys Fly apps,
+  // and "aws" runs the control plane on ECS and agent computers on Lambda MicroVMs.
+  "target": "fly",
+
+  // The vendor supplying the base model: "anthropic", "openai", or "openrouter"
+  // (one key, many models). Naming one makes that vendor's API key a required
+  // deployment secret and points the base model at that vendor: `qm setup`
+  // collects the key, `qm doctor` proves the provider accepts it, and `qm up`
+  // refuses a stack that cannot serve an agent turn. Delete this line to leave
+  // the base model unset and have an administrator add the key from the Admin
+  // page after deploy instead.
+  "modelProvider": "anthropic",
+
+  // Optional base model id, passed to the harness (e.g. "claude-opus-4-6").
+  // Omit it and the deployment uses the default model for the provider above.
+  // It must be a model that provider can bill.
+  // "model": "",
+
+  // Globally unique prefix for every Fly app in this deployment.
+  "appPrefix": "your-company",
+
+  // Fly region and org to deploy into ("personal" is every Fly account's default org).
+  "region": "sjc",
+  "flyOrg": "personal",
+
+  // First-party services to run. The full set: "core" (the agent runtime and API,
+  // always required), "slack" (the Slack surface, runs inside the core process),
+  // "web-ui" (a browser chat UI), "admin" (the operator dashboard), "portal"
+  // (the public sign-in front door), and "auth" (the built-in sign-in broker that
+  // emails one-time links; drop it to sign in through an external OIDC provider).
+  "services": ["core", "slack", "web-ui", "admin", "portal", "auth"],
+
+  // Extra plugins to run alongside the services. A prebuilt image runs with
+  // { "name": "linear", "image": "ghcr.io/you/qm-linear:1.0" }. A plugin with a
+  // Dockerfile at plugins/<name>/ in this directory needs no entry here at all.
+  "plugins": [],
+
+  // Extra directories of SKILL.md files, mounted into the agent.
+  // This repo's Claude Code skill pack lives at skills/. Mount it so the
+  // company agent loads the same workflows as local Claude Code, with no
+  // private git credential. Replace or empty this list if you import a pack
+  // from the Admin page instead.
+  "skills": ["skills"],
+
+  // Non-secret env overrides, per service. HARNESS "pi" runs real agent turns
+  // against the base model selected by "modelProvider" above. "mock" runs the
+  // whole stack with fake turns and no model calls.
+  "env": { "core": { "HARNESS": "pi", "SNAPSHOT_STORE": "s3", "TRANSFER_STORE": "s3", "S3_BUCKET": "your-company-data", "S3_REGION": "auto" }, "slack": { "SLACK_IDENTITY_EMAIL": "1" }, "auth": { "AUTH_EMAIL_TRANSPORT": "resend" } },
+
+  // The initial admin seed is kept in the provider secret store, never in config.
+  "secretEnv": { "core": { "ADMIN_GRANTS": "ADMIN_GRANTS" } }
+}

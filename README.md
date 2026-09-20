@@ -15,7 +15,8 @@ gh repo clone your-org/company-os ~/company-os
 ```
 
 That's it. `setup.sh` handles everything: CLI tools, SSH keys, 1Password secrets,
-skills, MCPs, and daemon setup. It asks you a few questions along the way.
+skills, MCPs, daemon setup, and the optional company-agent CLI. It asks you a few
+questions along the way.
 
 After setup finishes, start Claude Code:
 ```bash
@@ -61,6 +62,49 @@ Company OS is a shared repo that turns every engineer into a 10x Claude Code use
 - **4 MCP servers** — Notion integration, git-aware Obsidian vault, Plaud transcripts, team knowledge vault
 - **Shared CLAUDE.md** — company context, coding standards, and safety rules that every Claude session reads
 - **Automatic SSH key setup** — generates SSH keys and uploads them to GitHub
+- **Optional company agent** — this repo is a [QM](https://github.com/yc-software/qm) deployment directory (Y Combinator, MIT). Same install path as `qm init`: pin `@yc-software/qm`, fill `.env`, `qm up`. Setup installs the CLI. It never deploys (that bills your cloud).
+
+---
+
+## Optional: company agent (QM)
+
+**Agent:** if you were asked to install or deploy this (including Slack and
+channels), read `AGENTS.md`, then `.codex/skills/company-os-deploy/SKILL.md`.
+Do not run `qm init`. Do not copy another team's `.env` or Fly apps.
+
+[QM](https://github.com/yc-software/qm) is the open-source multiplayer agent harness
+from Y Combinator: Slack + web, one scoped agent per person and per channel. This
+repository **is** a QM deployment directory. The runtime is the published npm
+package, not a fork of the source tree.
+
+```bash
+# 1. Local setup already ran `npm ci` (or run it now)
+cd ~/company-os && npm ci
+
+# 2. Fill secrets interactively (generates signing keys; does not deploy)
+npm exec qm -- setup
+
+# 3. Validate, then deploy to YOUR Fly or AWS account
+npm exec qm -- check
+npm exec qm -- plan          # dry-run
+npm exec qm -- up            # bills: always-on machines + Postgres + object storage + model tokens
+```
+
+Before `up`, edit `qm.config.jsonc`: `orgId`, `appPrefix`, `publicUrl`, `flyOrg`,
+`region`. They default to the placeholder `your-company`. App names like
+`<prefix>-core` must be free on Fly. `setup.sh` stamps these from
+`COMPANY_SLUG` in `company-os.config.sh` when that slug is not the placeholder.
+
+`skills/` is mounted into the agent (`qm.config.jsonc` → `skills: ["skills"]`),
+so the company agent loads this repo's slash-command pack with no private git
+token. Full operator workflow: `deployment.md` and `.codex/skills/deploy-qm/`.
+
+Do not copy another team's `.env`, Fly app names, or bucket names.
+
+Slack bot + channels (agent-runnable): `.codex/skills/company-os-deploy/references/channels.md`.
+Required proof: invite the bot to `#agent-test`, mention it, get a reply.
+Optional: `#decisions` (for `/decide`), `#general` if they want the bot there.
+No unsolicited posts. No standing orders unless the operator asks.
 
 ---
 
@@ -147,7 +191,12 @@ company-os/
 │       ├── 07-daemon.sh   # Plaud sync LaunchAgent
 │       ├── 08-vault.sh    # Vault MCP team selection
 │       ├── 09-verify.sh   # Health checks (standalone)
-│       └── 10-summary.sh  # Final status table
+│       ├── 10-summary.sh  # Final status table
+│       └── 11-qm.sh       # Install QM CLI (never deploys)
+├── package.json           # pins @yc-software/qm
+├── qm.config.jsonc        # QM deployment config (placeholders only)
+├── deployment.md          # QM operator workflow (from `qm init`)
+├── .env.example           # QM secret catalog (names only)
 ├── .env.tpl               # 1Password secret template
 ├── skills/                # 12 slash commands
 │   ├── setup/             # /setup — interactive onboarding
@@ -167,7 +216,8 @@ company-os/
 │   ├── obsidian-mcp/      # Git-aware Obsidian vault access
 │   ├── plaud-mcp/         # Plaud transcript access
 │   └── vault-mcp/         # Team knowledge vault + daemon
-├── upgrades/              # Staging area (see below)
+├── sandbox/               # QM sandbox example (greet + example-tool)
+├── .codex/skills/         # Agent deploy skills (QM upstream + Company OS wrapper)
 ├── evals/                 # Promptfoo adversarial security-eval scaffold
 ├── tests/                 # Integration tests
 └── .claude/               # MCP + hooks config (auto-loaded)

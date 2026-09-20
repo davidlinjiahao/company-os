@@ -176,7 +176,20 @@ bash "$REPO_DIR/setup/steps/08-vault.sh"
 
 If `VAULT_NGROK_DOMAIN` is not configured, the script skips automatically.
 
-### Step 9: Summary
+### Step 9: Company agent CLI (automatic, does not deploy)
+
+Installs the pinned `@yc-software/qm` CLI and runs `qm check`. **Never
+runs `qm up`.** Cloud deploy bills the operator and is a separate skill.
+
+```bash
+bash "$REPO_DIR/setup/steps/11-qm.sh"
+```
+
+If they then ask to **deploy** the Slack/web agent, stop this skill and
+follow `.codex/skills/company-os-deploy/SKILL.md` (then `deployment.md`).
+Do not improvise Fly/AWS commands.
+
+### Step 10: Summary
 
 Print status table:
 
@@ -187,6 +200,7 @@ CLI Tools:     brew, git, python, uv, bun, node, gh, claude, qmd
 SSH Key:       configured for GitHub
 1Password:     [X keys pulled / skipped]
 Skills:        [N] commands linked
+QM CLI:        [installed / skipped]  (does not deploy)
 ---
 Notion:        enabled (shared token)
 Obsidian:      [enabled / disabled]
@@ -197,3 +211,5 @@ Vault:         [logged in as X / not configured]
 
 Then tell the user:
 > **Restart Claude Code** (MCPs load on session start), then run `/setup --verify` to test all MCP connections.
+> Optional company agent (Slack + web, bills their cloud): tell an agent
+> "Deploy this Company OS repo" — it will follow `.codex/skills/company-os-deploy/SKILL.md`.

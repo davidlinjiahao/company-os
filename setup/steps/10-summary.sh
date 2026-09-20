@@ -60,4 +60,8 @@ echo -e " ${BOLD}Next steps:${RESET}"
 echo -e "   1. ${BOLD}Restart Claude Code${RESET} (MCPs load on session start)"
 echo -e "   2. Run ${BOLD}/setup --verify${RESET} to test MCP connections"
 echo -e "   3. Try ${BOLD}/build${RESET} or ${BOLD}/search${RESET} to get started"
+if [[ "${STATUS[qm]:-skipped}" == "installed" || "${STATUS[qm]:-}" == "installed-unchecked" ]]; then
+    echo -e "   4. Optional company agent: ${BOLD}npm exec qm -- setup${RESET} then ${BOLD}npm exec qm -- up${RESET}"
+    echo -e "      ${DIM}(bills your cloud — edit qm.config.jsonc first; see deployment.md)${RESET}"
+fi
 echo ""

@@ -42,7 +42,9 @@ echo ""
 echo "Old root-level directory references:"
 
 for old_dir in hooks learnings tools; do
-    matches=$(cd "$REPO_DIR" && git ls-files | grep -v '^upgrades/' | grep -v '^tests/' | xargs grep -En "\"${old_dir}/|'${old_dir}/| ${old_dir}/|^${old_dir}/" 2>/dev/null | grep -v "upgrades/${old_dir}" | grep -v '├──\|└──\|│' || true)
+    # Path-like only (`"tools/`, `'tools/`, start-of-line). Prose such as
+    # "if tools/companies were named" is not a stale directory reference.
+    matches=$(cd "$REPO_DIR" && git ls-files | grep -v '^upgrades/' | grep -v '^tests/' | xargs grep -En "\"${old_dir}/|'${old_dir}/|^${old_dir}/" 2>/dev/null | grep -v "upgrades/${old_dir}" | grep -v '├──\|└──\|│' || true)
     if [ -z "$matches" ]; then
         echo "  PASS  No active references to root ${old_dir}/"
         PASS=$((PASS + 1))

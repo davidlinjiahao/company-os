@@ -20,3 +20,11 @@ VAULT_COLLECTIONS="team-vault"          # comma-separated, must match qmd index
 
 # Decision app
 DECIDE_APP_TITLE="Decide"
+
+# Company agent (qm) — optional. setup.sh installs the CLI; it never deploys.
+# Fill these, then from the repo root: npm exec qm -- setup && npm exec qm -- up
+# Slug becomes Fly app prefix and portal hostname (<slug>-portal.fly.dev).
+# It must be a lowercase DNS label, globally unique on Fly.
+QM_TARGET="fly"                 # fly | aws | docker
+QM_REGION="sjc"
+QM_FLY_ORG="personal"           # Fly organization slug (Fly's default is "personal")

@@ -1,0 +1,7 @@
+{
+  "id": "example-tool",
+  "advertise": "example-tool",
+  "install": {
+    "binary": "example-tool"
+  }
+}

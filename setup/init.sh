@@ -18,6 +18,7 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
 fi
 source "$CONFIG_FILE"
 export COMPANY_NAME COMPANY_SLUG GITHUB_ORG GITHUB_REPO OP_VAULT_NAME VAULT_NGROK_DOMAIN VAULT_COLLECTIONS
+export QM_TARGET="${QM_TARGET:-fly}" QM_REGION="${QM_REGION:-sjc}" QM_FLY_ORG="${QM_FLY_ORG:-personal}"
 
 # Bootstrap PATH before anything else (fixes T1, T2, T3)
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$HOME/.local/bin:$PATH"
@@ -51,5 +52,6 @@ source "$SETUP_DIR/steps/05-skills.sh"
 source "$SETUP_DIR/steps/06-mcps.sh"
 source "$SETUP_DIR/steps/07-daemon.sh"
 source "$SETUP_DIR/steps/08-vault.sh"
+source "$SETUP_DIR/steps/11-qm.sh" || true  # optional company-agent deploy; never runs qm up
 source "$SETUP_DIR/steps/09-verify.sh" || true  # don't fail setup on verify issues
 source "$SETUP_DIR/steps/10-summary.sh"
