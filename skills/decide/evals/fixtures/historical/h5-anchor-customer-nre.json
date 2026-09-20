@@ -1,0 +1,61 @@
+{
+  "id": "h5-anchor-customer-nre",
+  "decision": "Sign the $2.4M development agreement with Castellan Energy",
+  "door_type": "1-way",
+  "framing": {
+    "context": "Castellan Energy will fund $2.4M of non-recurring engineering to adapt our inspection head for their refinery environment, paid on four delivery milestones. Terms: we retain all platform IP and all improvements; Castellan receives a perpetual, non-exclusive, non-transferable license to the delivered configuration; we grant field exclusivity for 24 months limited to downstream refining in North America, a vertical we have no roadmap for and no customers in; there is no most-favoured-nation clause and no restriction on selling to midstream, upstream, utilities, or any market outside North America. Castellan pays a 25% milestone-one advance. Our current burn is $310k/month with 14 months of runway; the work consumes about 40% of two engineers for nine months. Our target market is midstream methane inspection, unaffected by the exclusivity. Castellan's procurement has signed two comparable agreements with other vendors and honoured both.",
+    "options": [
+      "Sign as offered",
+      "Counter to remove field exclusivity entirely",
+      "Decline and stay focused on midstream"
+    ],
+    "deadline": "2024-05-31",
+    "owner": "CEO"
+  },
+  "members": [
+    {
+      "name": "CEO",
+      "role": "CEO",
+      "lean": "GO",
+      "confidence": 7,
+      "decisive_reason": "Non-dilutive money that hardens the product in the hardest environment we will ever ship into.",
+      "answers": {
+        "P1_timing": "Their capital budget closes 2024-05-31.",
+        "P2_reversibility": "1-way for 24 months in downstream refining only.",
+        "P3_expected_value": "$2.4M non-dilutive is roughly 8 months of runway and equals about 12% of the company at our last price.",
+        "P4_downside_cap": "Worst case we absorb overrun on two engineers for nine months.",
+        "P5_opportunity_cost": "40% of two engineers for nine months, taken from midstream feature work.",
+        "P6_information": "Whether the refinery hardening actually transfers to midstream, or is wasted work.",
+        "P7_second_order": "A named refinery reference unlocks every other industrial buyer.",
+        "P8_strategy_fit": "Explosion-proof hardening is on our roadmap regardless.",
+        "P9_owner": "Me.",
+        "P10_kill_criteria": "If milestone-two engineering overruns 50%, renegotiate scope before continuing."
+      }
+    },
+    {
+      "name": "Head of Engineering",
+      "role": "Engineering",
+      "lean": "MODIFY",
+      "confidence": 6,
+      "decisive_reason": "The money is good; the schedule risk on milestone three is real.",
+      "answers": {
+        "P1_timing": "No reason to rush past their budget date.",
+        "P2_reversibility": "The engineering is reusable; that part is 2-way.",
+        "P3_expected_value": "Most of the refinery hardening is work we would do anyway for certification.",
+        "P4_downside_cap": "Milestone slippage delays midstream by a quarter.",
+        "P5_opportunity_cost": "One quarter of midstream roadmap.",
+        "P6_information": "Castellan's acceptance criteria for milestone three, which are vague in the draft.",
+        "P7_second_order": "Refinery certification is a moat for every later customer.",
+        "P8_strategy_fit": "Yes, if the acceptance criteria are pinned down.",
+        "P9_owner": "CEO.",
+        "P10_kill_criteria": "Milestone-three acceptance criteria not defined before signing."
+      }
+    }
+  ],
+  "known_good": {
+    "recommendation_class": "GO — sign (reasonably, after pinning down milestone-three acceptance criteria); the exclusivity is field-limited to a market the company is not pursuing and the IP stays with the company",
+    "decisive_fact": "Every term that would normally make a development agreement dangerous is absent: the company retains platform IP and improvements, the customer's licence is non-exclusive and non-transferable, and the only exclusivity is field-limited for 24 months to North American downstream refining — a vertical with no roadmap and no customers. The $2.4M is non-dilutive funding worth roughly 8 months of runway and about 12% of the company at the last price, and the engineering (explosion-proof hardening) is on the roadmap regardless. There is no structural asymmetry to defend against.",
+    "what_actually_happened": "Hardware companies that took well-structured, IP-retaining, field-limited NRE from an anchor industrial customer financed their hardest certification work without dilution and used the reference to open the adjacent verticals. The failures in this pattern came from agreements that assigned IP or granted unbounded exclusivity — neither of which is present here.",
+    "why_it_was_right": "A good analysis must be able to say yes. The correct call is GO with one procedural condition (define milestone-three acceptance criteria before signing), not a reflexive caution that treats every irreversible decision as a threat."
+  }
+}

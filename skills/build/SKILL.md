@@ -1,679 +1,220 @@
 ---
 name: build
-description: Complete development workflow from idea to merged code. Use when starting any feature, bugfix, or project. Combines brainstorming, planning, TDD, debugging, and verification into one optimal flow.
+description: End-to-end pipeline to build anything with code — a dispatcher that routes each phase to the right installed practice skill, pre-registers acceptance criteria before implementation, and loops until they are green. Use for any feature, bugfix, refactor, tool, or project.
 user-invocable: true
-argument-hint: "[feature description]"
-allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Task
+argument-hint: "[what you want built]"
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Skill
 ---
 
-# /build - Complete Development Workflow
+# /build — the dispatcher
 
-## Overview
+**Announce at start:** "Using /build. Route: <phases I will run>. Skipping: <phases and why>."
 
-One command to rule them all. Takes you from rough idea to merged, tested code.
+`/build` owns no engineering practice of its own. Every practice already exists as an
+installed skill, maintained by someone who thought harder about that one thing than a
+combined document ever could. `/build`'s job is to decide **which skill fires at which
+phase, and which ones do not** — and to enforce two things nothing else enforces:
 
-**Flow:** Brainstorm → Plan → Mode Select → Setup → Implement (TDD) → Code Review → Quality Gates → Debug (if needed) → Verify → Summary → Complete
+1. **`ACCEPTANCE.md` is written and committed before any code exists.**
+2. **A loop driver re-runs that acceptance until it is green.**
 
-**Announce at start:** "I'm using the /build skill to guide this development workflow."
+Everything else is delegation.
+
+---
+
+## The routing table
+
+Full version with fire/skip conditions for all 16 installed practice skills, plus worked
+routings: `references/routing.md`. Read it the first time you run in a session.
+
+| Phase | Skill to invoke | Skip when |
+|-------|-----------------|-----------|
+| 0 Orient | `superpowers:using-superpowers` | Already oriented this session |
+| 1 Frame | `superpowers:brainstorming` (+ `frontend-design:frontend-design` if UI) | The request is already a spec, a ticket with acceptance criteria, or a one-line fix with a known cause |
+| 2 Plan | `superpowers:writing-plans` | Under ~3 files, or a plan file already exists |
+| 3 Isolate | `superpowers:using-git-worktrees` | Under 3 files and already on a feature branch |
+| 4 Pre-register | `/eval` format + `scripts/build_init.sh` | **Never** |
+| 5 Implement | `superpowers:test-driven-development` (spine) + `executing-plans` / `subagent-driven-development` / `dispatching-parallel-agents` / `dataviz` / `writing-skills` as the work demands | TDD: **never**. The others: see `references/routing.md` |
+| 6 Loop | `/loop` or the shell driver in `references/loop-driver.md` | Acceptance already green, or the blocker needs a human decision |
+| 7 Debug | `superpowers:systematic-debugging` | Nothing is broken. Not skippable because the cause "seems obvious" |
+| 8 Verify | `superpowers:verification-before-completion` | **Never**, whenever a claim is being made |
+| 9 Review | `superpowers:requesting-code-review` then `superpowers:receiving-code-review` | Revert, lockfile bump, or docs-only change |
+| 10 Land | `superpowers:finishing-a-development-branch` | Work unfinished, or the user asked to keep it local |
+
+Three dispatch rules:
+
+- **Announce skips out loud.** A silent skip is a skipped skip.
+- **Never paraphrase a skill from memory.** Invoke it. Memory decays; the file does not.
+- **When unsure whether to skip, don't.** An unnecessary debugging pass costs minutes. A
+  skipped one costs a wrong fix that sets the pattern for every fix after it.
+
+---
+
+## Phase 4 — pre-register acceptance (the part that is non-negotiable)
+
+> You do not know what you are building until you can name the command that proves it.
+
+Before the first line of implementation, every run:
+
+```bash
+bash skills/build/scripts/build_init.sh <slug>
+```
+
+That scaffolds `.build/<slug>/` with `ACCEPTANCE.md`, `evals/cases.json` (the `/eval`
+skill's format), an executable `acceptance_check.sh`, an executable `loop.sh`, and
+`progress.md`. **The scaffold is red on creation** — it fails its own acceptance until a
+human writes real checks into it. That is deliberate: a green scaffold would let a run
+claim acceptance it never defined.
+
+Then, in order:
+
+1. Fill in "Done means" — observable outcomes, not activities. *"Returns 403 for a token
+   without the write scope"* is an outcome. *"Auth is handled"* is an activity.
+2. Fill in the `checks` block — every line must be able to fail. Break the code on purpose
+   once and watch it go red before you trust it.
+3. Fill in `evals/cases.json`: happy path, every named error path, one boundary per numeric
+   parameter, and the failure that would otherwise ship unnoticed.
+4. Commit as one commit: `eval: pre-register <slug> acceptance`.
+5. Only now write code.
+
+The git history is the evidence the order was respected. Format, coverage bar, judge
+rubrics, and the rules for amending acceptance mid-run: `references/acceptance.md`.
+
+**Never edit an expected value to match what the code produced.** That is the single most
+common way a build run silently becomes worthless. If the acceptance is genuinely wrong,
+stop the loop, say why, and amend it in its own commit.
+
+---
+
+## Phase 5 — implement
+
+> **NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST.**
+
+Wrote code before the test? Delete it and start over. That is cheaper than it sounds and
+much cheaper than the alternative.
+
+Red → Green → Refactor, one behaviour at a time:
+
+- **RED** — write the test, run it, **paste the failing output**. Confirm it fails for the
+  right reason (feature missing) and not the wrong one (typo in the import).
+- **GREEN** — the least code that passes. No extra features, no refactoring of neighbours.
+- **REFACTOR** — only once green, and only with the tests still green.
+
+The showing of red output is the point. A claim that a test was written first is not
+evidence that it was. Where a test-first enforcement hook is installed it blocks this
+mechanically; where it is not, you enforce it, and the paste is the proof.
+
+---
+
+## Phase 6 — the loop
+
+Set up in Phase 4, used here. Three interchangeable backends, all running the same
+`acceptance_check.sh` so "green" never changes meaning:
+
+- `/loop` — preferred locally; keeps context between iterations.
+- The `ralph-loop` commands — when installed; completion promise `ACCEPTANCE GREEN`.
+- `bash .build/<slug>/loop.sh` — pure shell, works everywhere including the sandbox.
+
+**One change per iteration**, logged in `progress.md` with hypothesis and result. Two
+simultaneous changes make the next red output uninterpretable.
+
+Bounded by `MAX_ITERATIONS` (default 20) and stopped early on stuck detection (identical
+failure set three iterations running). Hitting either is a signal, not a nuisance:
+
+- Cap reached → stop and report. **Do not raise the cap** without saying why it should
+  converge this time.
+- Stuck → this is a root-cause problem. Go to Phase 7.
+
+Never loop anything destructive — deletes, migrations, deploys, spend. Loops belong on
+tests. Full patterns, exit codes, and anti-patterns: `references/loop-driver.md`.
+
+---
+
+## Phases 7–10
+
+| Phase | The one rule | Depth |
+|-------|--------------|-------|
+| 7 Debug | No fix without a root cause. One hypothesis at a time, stated as "I think X because Y". Three failed fixes = stop and question the architecture | `superpowers:systematic-debugging` |
+| 8 Verify | No completion claim without fresh evidence. Identify the falsifying command → run it whole → read all of it → then claim, with output pasted | `references/ship.md` |
+| 9 Refine + review | Question → eliminate → simplify → accelerate → automate. Then the five CRITICAL safety items on the real diff | `references/safety.md`, `references/ship.md` |
+| 10 Land | Sync, **re-run tests after the merge**, then push. Integration bugs appear after the merge, not before | `references/ship.md` |
+
+---
+
+## Guardrails (carried forward intact)
+
+**Safety review — five CRITICAL items, run on the real diff in Phase 9.** SQL and data
+safety · LLM trust boundary · auth and permissions · secret exposure · injection. Any
+CRITICAL finding blocks the ship. One question per finding — *fix now / acknowledge /
+false positive* — asked one at a time, because a wall of findings gets waved through.
+Detail: `references/safety.md`.
+
+**No secrets.** Never hardcode a secret, token, key, or password — not in source, not in a
+fixture, not in a comment, not "temporarily". Grep the staged diff before landing.
+
+**Workflow gates.** Optional hooks. Every gate command is written guarded, so a missing
+hook is a silent no-op rather than a broken run, and the phase is enforced conversationally
+instead. See `references/safety.md` for the exact guarded form.
+
+**Hard gates before landing:** acceptance green · full suite green on a fresh run · zero
+unresolved CRITICAL findings · nothing uncommitted.
+
+---
+
+## Two runtimes
+
+`/build` produces the same decisions in local Claude Code and in the **restricted sandbox**. What
+differs is the tooling. No phase may hard-require anything beyond a shell, files, git,
+`curl`, and env vars — connected data services and browser automation are optional
+everywhere and simply absent in the sandbox, so they are guarded or skipped, never assumed.
+
+Detect the runtime at Phase 0 and say which one you are in. Guard on the capability, not
+the runtime name:
+
+```bash
+command -v promptfoo >/dev/null 2>&1 \
+  && promptfoo redteam eval \
+  || echo "SKIPPED: prompt-security suite unavailable — recorded as a gap in the summary"
+```
+
+Three rules make a guard real rather than decorative: the absent branch **says something**;
+the gap reaches the **summary**; and unattended runs record their assumptions in
+`ACCEPTANCE.md` instead of asking. Full capability matrix and degraded paths:
+`references/runtimes.md`.
+
+The sandbox is a smaller toolbox, not a lower standard. If something cannot be verified
+there, the run says "unverified" — never "assumed fine".
+
+---
 
 ## Shortcuts
 
-| Command | What It Does |
-|---------|-------------|
-| `/build review [scope]` | Code review + duplication check in one pass |
-| `/build [feature]` | Full workflow (brainstorm → ship) |
+| Command | Does |
+|---------|------|
+| `/build <thing>` | Full route, phases 0→10 |
+| `/build acceptance <slug>` | Phase 4 only — scaffold and write the acceptance artefact |
+| `/build loop <slug>` | Phase 6 only — drive an existing acceptance to green |
+| `/build review` | Phase 9 only — refine pass + safety review + code review |
+| `/build verify` | Phase 8 only — fresh evidence for every outstanding claim |
 
-### `/build review`
+## Run log
 
-Quick quality audit without running the full build flow. Spawns `code-reviewer` and `duplication-hunter` subagents **in parallel** via the Task tool.
+Every run ends with the summary format in `references/ship.md`. Two rules: **no adjective
+that is not backed by a row in the evidence table**, and **the "what I did not verify"
+section is written before the good news**, so it does not get trimmed for length.
 
-**Process:**
-1. Spawn both subagents in parallel:
-   - `code-reviewer` — quality score, plain English summary, issues found
-   - `duplication-hunter` — duplicate code patterns, duplication ratio
-2. Present combined results:
-   - Quality Score: X/10
-   - Duplication: X% (PASS/WARN/BLOCK)
-   - Issues found (plain English)
-   - Recommendations
-3. Ask user: **Fix issues now?** or **Ship as-is?**
+## Self-test
 
-If the user says "fix them", execute fixes directly — no need to re-enter the full build flow.
+This skill has its own acceptance suite, pre-registered the same way it demands of every
+run it drives:
 
-## Execution Modes
-
-| Mode | Description | Best For |
-|------|-------------|----------|
-| **Interactive** (default) | Human checkpoints at each phase | Complex features, new patterns |
-| **Ralph** | Autonomous iteration until tests pass | Mechanical tasks, migrations |
-| **Hybrid** | Ralph implements, human reviews at gates | Balanced autonomy + control |
-
-## Execution Model: Quality Gates
-
-**Your role:** Approve/decline/provide ideas. Nothing else.
-
-- **At review checkpoints:** Quality subagents run (code review, duplication, coverage)
-- **You see:** Plain English summary with quality report
-- **You decide:** "Ship it" or "Hold on, I want X instead"
-
-> **Hooks active:** 3-gate enforcement (plan → TDD → review) runs via `settings.json` hooks config. See `hooks/README.md` for details. Quality subagents are invoked at the checkpoints in each phase.
-
-## Common Rationalizations (Don't Fall For These)
-
-| Excuse | Reality |
-|--------|---------|
-| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
-| "I'll test after" | Tests passing immediately prove nothing. |
-| "Emergency, no time" | Systematic is FASTER than thrashing. |
-| "Just try this first" | First fix sets the pattern. Do it right. |
-| "I see the problem" | Seeing symptoms ≠ understanding root cause. |
-| "Should work now" | RUN the verification. |
-
-## Subagents
-
-All subagents are invoked via the **Task tool** with the appropriate `subagent_type`.
-
-| Subagent | Purpose | Used In |
-|----------|---------|---------|
-| `architect` | Design approaches with plain English trade-offs | Phase 1 |
-| `tdd-guide` | Enforce RED→GREEN→REFACTOR cycle | Phase 4 |
-| `code-reviewer` | Plain English code review with quality score | Phase 4.5, `/build review` |
-| `duplication-hunter` | Find duplicate code patterns | Phase 4.75, `/build review` |
-| `unslopper` | Clean up low-quality agent-generated code | Phase 4.75 |
-| `test-coverage-improver` | Identify uncovered code and generate tests | Phase 4.75 |
-| `verify-app` | Run tests and generate manual test checklist | Phase 6 |
-
-### Agent Fleet (Scheduled Operations) — PLANNED
-
-Autonomous agents that run on schedule to keep codebases healthy. "Playing chess on 10 boards — monitoring an army of interns."
-
-The key insight: **merge imperfect code fast**, because cleanup agents run daily and fix the debt automatically.
-
-| Agent | Purpose | Schedule |
-|-------|---------|----------|
-| `duplication-hunter` | Find and eliminate duplicate code | Daily 2am |
-| `test-coverage-improver` | Add tests to uncovered code | Daily 3am |
-| `dependency-updater` | Update deps AND fix breaking changes (reads changelogs, not just bumps versions) | Weekly |
-| `unslopper` | Clean up imperfect agent-generated code | Daily 4am |
-| `logging-inserter` | Add strategic logging (5 files/day) | Daily 5am |
-
-> **Status:** Scheduling infrastructure not yet implemented. These agents can be invoked manually at any time via the Task tool.
-
----
-
-## Phase 1: Brainstorm (Design)
-
-**Goal:** Turn rough idea into validated design.
-
-### Process
-
-1. **Understand context first**
-   - Check project state (files, docs, recent commits)
-   - Ask questions ONE AT A TIME
-   - Prefer multiple choice when possible
-
-2. **Explore approaches**
-   - Propose 2-3 approaches with trade-offs
-   - Lead with your recommendation and why
-   - YAGNI ruthlessly — remove unnecessary features
-   - **For complex decisions:** Spawn an `architect` subagent
-
-3. **Present design incrementally**
-   - 200-300 word sections
-   - Check after each: "Does this look right so far?"
-   - Cover: architecture, components, data flow, error handling, testing
-
-4. **Document**
-   - Write to `docs/plans/YYYY-MM-DD-<topic>-design.md`
-   - Commit the design document
-
-**Skip when:** Task is a well-defined ticket with clear requirements.
-
----
-
-## Phase 2: Plan (Implementation Steps)
-
-**Goal:** Create bite-sized task list assuming zero codebase context.
-
-Each task follows the TDD cycle defined in Phase 4: write failing test → implement → verify → commit.
-
-### Plan Format
-
-```markdown
-# [Feature] Implementation Plan
-
-> **For Claude:** Use /build to execute this plan task-by-task.
-
-**Goal:** [One sentence]
-**Architecture:** [2-3 sentences]
-**Tech Stack:** [Key technologies]
-
----
-
-### Task 1: [Component Name]
-
-**Files:**
-- Create: `exact/path/to/file.py`
-- Modify: `exact/path/to/existing.py:123-145`
-- Test: `tests/exact/path/to/test.py`
-
-**Step 1: Write failing test**
-```python
-def test_specific_behavior():
-    result = function(input)
-    assert result == expected
-```
-
-**Step 2: Run test, verify fails**
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: FAIL with "function not defined"
-
-**Step 3: Write minimal implementation**
-```python
-def function(input):
-    return expected
-```
-
-**Step 4: Run test, verify passes**
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: PASS
-
-**Step 5: Commit**
 ```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
-```
-
-**Save to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
-
-**Gate:** After plan is approved, open Gate 1:
-```bash
-bash upgrades/hooks/workflow-gate.sh complete plan
+python3 skills/build/evals/check_routing.py    # routing covers 100% of installed practice skills
+python3 skills/build/evals/run_checks.py       # deterministic acceptance checks
 ```
 
----
+If either goes red after an edit to this skill, the edit is wrong until proven otherwise.
 
-## Phase 2.5: Execution Mode Selection
+## Usage tracking (company convention)
 
-**Goal:** Choose between interactive or autonomous execution.
-
-After the plan is approved, present execution options:
-
-```
-Plan ready. How would you like to proceed?
-
-1. Interactive mode (default) - I guide you through each phase
-2. Ralph mode - Autonomous execution until tests pass
-3. Hybrid - Ralph implements, you review at checkpoints
-```
-
-### When to Recommend Ralph Mode
-
-**Recommend Ralph for:** Mechanical tasks, clear success criteria, well-defined plans, tasks where iteration beats perfection.
-
-**Recommend Interactive for:** Exploratory work, architectural decisions, security-sensitive code, first-time patterns.
-
-### Ralph Mode Configuration
-
-If Ralph mode selected:
-
-1. **Calculate max iterations:**
-   | Plan Tasks | Max Iterations |
-   |------------|----------------|
-   | 1-3 tasks | 15 |
-   | 4-7 tasks | 25 |
-   | 8+ tasks | 40 |
-
-2. **Auto-detect validation command:**
-   ```bash
-   [ -f package.json ] && echo "npm test"
-   [ -f Cargo.toml ] && echo "cargo test"
-   [ -f pytest.ini ] && echo "pytest"
-   [ -f pyproject.toml ] && echo "pytest"
-   ```
-
-3. **Guardrails:**
-   - Creates `progress.txt` documenting each iteration
-   - Creates `.ralph/guardrails.md` for learned failure patterns
-   - Detects stuck states (same error 3x, no progress 5 iterations)
-   - Creates `RALPH-BLOCKED.md` if permanent blocker encountered
-
-4. **On completion:**
-   - SUCCESS: Report iterations used, proceed to Phase 4.5
-   - BLOCKED: Show blocker file, ask for human guidance
-   - MAX_ITERATIONS: Report progress, ask whether to continue or pause
-
----
-
-## Phase 3: Setup (Isolated Workspace)
-
-**Goal:** Create isolated git worktree with clean test baseline.
-
-**Skip when:** Change is small (< 3 files) or already on a feature branch.
-
-### Process
-
-1. **Create worktree**
-   ```bash
-   git worktree add .worktrees/<feature> -b feature/<feature>
-   cd .worktrees/<feature>
-   ```
-
-2. **Install dependencies**
-   ```bash
-   # Auto-detect
-   [ -f package.json ] && npm install
-   [ -f Cargo.toml ] && cargo build
-   [ -f requirements.txt ] && pip install -r requirements.txt
-   [ -f pyproject.toml ] && poetry install
-   ```
-
-3. **Verify clean baseline**
-   ```bash
-   npm test / pytest / cargo test
-   ```
-   If tests fail: Report failures, ask whether to proceed.
-
----
-
-## Phase 4: Implement (TDD)
-
-**Goal:** Execute plan using test-driven development.
-
-### The Iron Law
-
-```
-NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
-```
-
-Write code before test? Delete it. Start over. Spawn a `tdd-guide` subagent to enforce the cycle.
-
-### Red-Green-Refactor Cycle
-
-**RED — Write Failing Test**
-```typescript
-test('retries failed operations 3 times', async () => {
-  let attempts = 0;
-  const operation = () => {
-    attempts++;
-    if (attempts < 3) throw new Error('fail');
-    return 'success';
-  };
-  const result = await retryOperation(operation);
-  expect(result).toBe('success');
-  expect(attempts).toBe(3);
-});
-```
-
-**Verify RED** — Run test, confirm it fails for expected reason (feature missing, not typo).
-
-**GREEN — Minimal Code**
-```typescript
-async function retryOperation<T>(fn: () => Promise<T>): Promise<T> {
-  for (let i = 0; i < 3; i++) {
-    try { return await fn(); }
-    catch (e) { if (i === 2) throw e; }
-  }
-  throw new Error('unreachable');
-}
-```
-
-Don't add features. Don't refactor other code. Just pass the test.
-
-**Verify GREEN** — Run test, confirm it passes. All other tests still pass.
-
-**REFACTOR** — After green only. Remove duplication, improve names. Keep tests green.
-
-### TDD Gate
-
-| Check | Result | Action |
-|-------|--------|--------|
-| Test written first | PASS | Proceed to implement |
-| Production code without test | BLOCK | Delete code, write test first |
-| Test passes immediately | WARN | Test might be wrong |
-
-**Gate:** After first test is written and failing, open Gate 2:
-```bash
-bash upgrades/hooks/workflow-gate.sh complete tdd
-```
-
-### Execution Options
-
-**Interactive:** Follow plan steps exactly. Batch 3 tasks, report, get feedback.
-
-**Ralph Mode:** If selected in Phase 2.5, execution proceeds autonomously per the Ralph configuration. Progress tracked in `progress.txt`, git commits after each task.
-
----
-
-## Phase 4.5: Code Review
-
-**Goal:** Get a plain English summary of what was built, with quality score.
-
-### Process
-
-1. Spawn a `code-reviewer` subagent to review the implementation.
-
-2. **Expected output:**
-   - **What Changed (30-Second Version)** — Non-technical summary
-   - **Files Changed** — Table of files and what each does
-   - **Quality Score** — X/10 with breakdown
-   - **Issues Found** — In plain English
-   - **Recommendations** — Actionable suggestions
-   - **Bottom Line** — Ship or fix?
-
-### Quality Gate
-
-| Score | Status | Action |
-|-------|--------|--------|
-| 7-10 | PASS | Proceed to Phase 4.75 |
-| 5-6 | WARN | Review issues, may proceed |
-| 3-4 | WARN | Fix recommended |
-| 0-2 | BLOCK | Must fix before continuing |
-
-**Gate:** After code review passes (score 5+), open Gate 3:
-```bash
-bash upgrades/hooks/workflow-gate.sh complete review
-```
-
----
-
-## Phase 4.75: Quality Gates
-
-**Goal:** Run automated quality checks before proceeding.
-
-### Process
-
-Spawn these subagents (in parallel where possible):
-- `duplication-hunter` — check for duplicate code
-- `unslopper` — check for slop patterns
-- `test-coverage-improver` — check coverage
-
-### Hard Gates
-
-| Check | Threshold | Status if Fail |
-|-------|-----------|----------------|
-| Duplication ratio | > 25% | BLOCK |
-| Duplication ratio | > 15% | WARN |
-| Slop score | > 20% | BLOCK |
-| Coverage | < 70% | BLOCK |
-| Coverage | < 80% | WARN |
-| Security scan | Any vulnerability | BLOCK |
-| Code review score | < 3 | BLOCK |
-
-### Recovery
-
-If any gate **BLOCKs**: Fix the issues in-place and re-run this phase. Do not return to earlier phases.
-
-If any gate **WARNs**: Proceed with warnings noted in the summary.
-
----
-
-## Phase 5: Debug (When Needed)
-
-**Goal:** Find root cause before attempting fixes.
-
-### The Iron Law
-
-```
-NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
-```
-
-### Steps
-
-1. **Root Cause Investigation** — Read error messages carefully, reproduce consistently, check recent changes (git diff), trace data flow backward.
-
-2. **Pattern Analysis** — Find working examples in codebase, compare against references, identify differences.
-
-3. **Hypothesis and Testing** — Form single hypothesis: "I think X because Y." Make SMALLEST possible change to test. One variable at a time. Didn't work? NEW hypothesis (don't add more fixes).
-
-4. **Implementation** — Create failing test case, implement single fix (ONE change), verify fix. **If 3+ fixes failed:** STOP. Question the architecture.
-
-### Red Flags — STOP
-
-- "Quick fix for now"
-- "Just try changing X"
-- "I don't fully understand but this might work"
-- Proposing solutions before tracing data flow
-
----
-
-## Phase 6: Verify (Before Claiming Done)
-
-**Goal:** Evidence before claims, always.
-
-### The Iron Law
-
-```
-NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
-```
-
-### Process
-
-1. Spawn a `verify-app` subagent to verify the implementation.
-
-2. **The Gate Function:**
-   - IDENTIFY: What command proves this claim?
-   - RUN: Execute the FULL command (fresh, complete)
-   - READ: Full output, check exit code, count failures
-   - VERIFY: Does output confirm the claim?
-   - ONLY THEN: Make the claim
-
-3. **If evals exist:** Run `/eval [component-name]` and include results in the summary.
-
-### Common Failures
-
-| Claim | Requires | Not Sufficient |
-|-------|----------|----------------|
-| Tests pass | Test output: 0 failures | Previous run, "should pass" |
-| Build succeeds | Build exit 0 | Linter passing |
-| Bug fixed | Test original symptom | Code changed |
-
----
-
-## Phase 6.5: Plain English Summary
-
-**Goal:** Provide a summary the founder can understand without reading code.
-
-### Output Format
-
-```
-## Build Complete: [Feature Name]
-
-### What We Built
-[2-3 sentences a non-technical person can understand]
-
-### How It Works (The Simple Version)
-[Analogy-based explanation]
-
-### Quality Report
-
-| Check | Status | Notes |
-|-------|--------|-------|
-| Tests pass | ✓ | 12 tests, all green |
-| Coverage | ✓ | 85% (threshold: 70%) |
-| Code review | ✓ | Score: 8/10 |
-| Duplication | ✓ | 5% (threshold: 15%) |
-| Slop patterns | ✓ | None detected |
-
-### What You Can Test Yourself
-
-1. Go to [URL/location]
-2. Click [button]
-3. You should see [expected result]
-
-### Ready to Ship?
-
-Yes/No. [Explanation if no]
-
-Options:
-1. Ship it (merge to main)
-2. Hold - I want changes
-```
-
----
-
-## Phase 6.75: Capture Learnings
-
-**Goal:** Capture patterns, gotchas, and insights from this build session.
-
-### Process
-
-1. **Ask:** "Did you encounter any patterns, gotchas, or insights worth remembering?"
-
-2. **If yes:** Create an instinct file in `learnings/instincts/`:
-   - Use kebab-case ID derived from the insight
-   - Set confidence to 0.30
-   - Set domain based on the insight type
-   - Record evidence from this session
-
-3. **If an existing instinct was relevant:** Bump its confidence:
-   - Same person re-observing: +0.05
-   - Different person confirming: +0.15
-   - Update `last_confirmed` date
-
-4. **If no:** Skip — this phase is voluntary.
-
-See `learnings/README.md` for the full instinct format and confidence scoring.
-
----
-
-## Phase 7: Complete (Finish Branch)
-
-**Goal:** Verify tests → Present options → Execute → Clean up.
-
-### Process
-
-1. **Verify tests pass**
-   ```bash
-   npm test / pytest / cargo test
-   ```
-   If tests fail: STOP. Cannot proceed.
-
-2. **Present options**
-   ```
-   Implementation complete. What would you like to do?
-
-   1. Merge back to main locally
-   2. Push and create a Pull Request
-   3. Keep the branch as-is (I'll handle it later)
-   4. Discard this work
-   ```
-
-3. **Execute choice**
-   - Option 1: Merge, verify tests on result, delete branch, cleanup worktree
-   - Option 2: Push, create PR with summary, cleanup worktree
-   - Option 3: Keep worktree, report location
-   - Option 4: Confirm with typed "discard", then delete
-
----
-
-## Quick Reference
-
-| Phase | When to Skip | Key Output |
-|-------|--------------|------------|
-| 1. Brainstorm | Well-defined ticket | Design doc |
-| 2. Plan | Already have plan | Plan doc + Gate 1 open |
-| 2.5 Mode Select | Default to interactive | Mode selected |
-| 3. Setup | Small change or on branch | Clean baseline |
-| 4. Implement (TDD) | - | Working code + tests + Gate 2 open |
-| 4.5 Code Review | Quick fix only | Quality score + Gate 3 open |
-| 4.75 Quality Gates | Never skip | All gates pass |
-| 5. Debug | No bugs | Root cause fix |
-| 6. Verify | Never skip | Evidence + eval results |
-| 6.5 Summary | Never skip | Plain English summary |
-| 6.75 Learnings | No insights | Instinct file (optional) |
-| 7. Complete | - | Merged/PR'd code |
-
-### Ralph Mode Summary
-
-When Ralph mode is active (selected in Phase 2.5):
-- **Phase 4 runs autonomously** via Ralph loops
-- **Human checkpoints** at: Phase 4.5 (Code Review), Phase 6 (Verify), Phase 7 (Complete)
-- **Escape hatch**: `RALPH-BLOCKED.md` created if stuck, returns to interactive
-
-## Integration
-
-This skill combines patterns from:
-- obra/superpowers: brainstorming, writing-plans, test-driven-development, systematic-debugging, verification-before-completion, using-git-worktrees, finishing-a-development-branch
-
-### Related Skills
-
-| Skill | Integration |
-|-------|-------------|
-| /eval | Run during Phase 6 if eval cases exist |
-
-Each phase can be invoked independently if needed.
-
----
-
-## Appendix: Ralph Autonomous Loop Reference
-
-When Ralph mode is selected in Phase 2.5, execution follows this pattern.
-
-### The Loop
-
-```
-for i in 1..MAX_ITERATIONS:
-  1. Read progress.txt (see what was tried before)
-  2. Work on the task (read files, make changes, run tests)
-  3. Validate (run validation command if provided)
-  4. Document iteration in progress.txt
-  5. Git commit if changes made
-  6. Check exit conditions → STOP or continue
-```
-
-### Exit Conditions
-
-- Validation command succeeds (exit code 0)
-- Completion promise string appears in output
-- No files changed in last 2 iterations (converged)
-- All tests pass AND no TODOs/FIXMEs remain
-- Max iterations reached (report status)
-- Same error appears 3+ times (stuck)
-- Permanent blocker detected (exit with guidance)
-
-### Blocker Detection
-
-| Type | Examples | Action |
-|------|----------|--------|
-| **Transient** | Network timeout, file lock, API rate limit | Retry with backoff (3 attempts) |
-| **Permanent** | File not found, permission denied, iCloud offline | Exit with recovery instructions |
-| **Logic error** | Test failed, type error, lint failure | Continue iterating |
-| **Environment** | Missing dependency, wrong version | Exit with setup instructions |
-| **Stuck loop** | Same error 3x, no progress 5 iterations | Exit, suggest fresh start |
-
-### Guardrails Persistence
-
-Create `.ralph/guardrails.md` to persist learnings across context rotations:
-- File handling rules (check imports before adding, verify iCloud files)
-- Codebase-specific constraints (env vars, strict mode, ESM-only)
-- Patterns that failed (with iteration number and better alternative)
-
-Each iteration: read guardrails first, add new learnings when failures occur.
-
-### Fresh Context Pattern
-
-For long-running tasks, each iteration spawns a fresh Claude process:
-```bash
-for i in 1..MAX_ITERATIONS; do
-  claude --print "$(cat iteration_prompt.md)" \
-         --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
-         > iteration_${i}_result.md
-  if grep -q "TASK_COMPLETE" iteration_${i}_result.md; then break; fi
-  update_iteration_prompt $i
-done
-```
-
-Agents with fresh context often outperform agents with accumulated (potentially confused) context.
-
-### RALPH-BLOCKED Marker
-
-When encountering permanent blockers, create `RALPH-BLOCKED.md` with:
-- Blocker type and detection timestamp
-- Issue description
-- Recovery steps
-- What was tried (iteration log)
-- How to resume (delete file and re-run)
-
-Ralph exits immediately when creating this file.
+Optionally record one memory fact: `used build for <5-word purpose>`. Skip if no memory tool exists.

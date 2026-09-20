@@ -1,0 +1,5 @@
+{
+  "context": "Deliberately malformed fixture for case G9: no `role`, no `keywords`. Loading this MUST fail loudly with a message naming the missing field — never silently default to an empty or global search.",
+  "locations": ["Remote"],
+  "min_score": 6
+}

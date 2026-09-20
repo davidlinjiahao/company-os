@@ -1,0 +1,61 @@
+{
+  "id": "h4-pivot-funding",
+  "decision": "Shut down the legacy enterprise segment to put the whole team on the new self-serve product",
+  "door_type": "1-way",
+  "framing": {
+    "context": "The legacy enterprise segment is $4.2M ARR, shrinking 6% per year, gross margin 71%, and it funds 100% of the company's operations — we have not raised since 2020 and have $900k in the bank. It requires 11 of our 34 people (support, implementation, two account managers). The new self-serve product has $210k ARR growing 22% month over month with 3 engineers on it. Two of our four largest enterprise accounts are also the design partners whose usage data trains the self-serve product's defaults. Winding down enterprise means 60-day contractual notice on renewals and the loss of roughly $3.4M of the next twelve months' cash.",
+    "options": [
+      "Hard cut: sunset enterprise now, all 34 people on self-serve",
+      "Staged: freeze new enterprise sales, keep renewals and the two design-partner accounts, move 6 people per quarter to self-serve",
+      "Keep both indefinitely"
+    ],
+    "deadline": "2023-09-30",
+    "owner": "CEO"
+  },
+  "members": [
+    {
+      "name": "CEO",
+      "role": "CEO",
+      "lean": "GO",
+      "confidence": 7,
+      "decisive_reason": "Half-pivots are how companies die slowly.",
+      "answers": {
+        "P1_timing": "Renewal notices go out 2023-09-30, so the decision forces itself.",
+        "P2_reversibility": "1-way. Enterprise customers will not come back once sunset.",
+        "P3_expected_value": "Self-serve at 22% MoM reaches $4M ARR in about 15 months if the growth holds.",
+        "P4_downside_cap": "$900k in the bank against a $3.4M cash hole.",
+        "P5_opportunity_cost": "Every quarter split is a quarter the self-serve product ships slower.",
+        "P6_information": "Whether 22% MoM survives the first 10x of volume.",
+        "P7_second_order": "A clean story makes the next raise easier.",
+        "P8_strategy_fit": "Self-serve is the company we want to be.",
+        "P9_owner": "Me.",
+        "P10_kill_criteria": "Self-serve growth under 10% MoM for two consecutive months."
+      }
+    },
+    {
+      "name": "CFO",
+      "role": "CFO",
+      "lean": "NO-GO",
+      "confidence": 9,
+      "decisive_reason": "There is no version of this where $900k covers a $3.4M hole.",
+      "answers": {
+        "P1_timing": "The 60-day notice window is the only hard date.",
+        "P2_reversibility": "Cash is the most irreversible thing here.",
+        "P3_expected_value": "22% MoM on $210k is a small base; it does not reach payroll in time.",
+        "P4_downside_cap": "Insolvency in under 5 months.",
+        "P5_opportunity_cost": "Enterprise gross profit is the cheapest capital we will ever have.",
+        "P6_information": "What the self-serve CAC and churn look like at 10x volume.",
+        "P7_second_order": "Losing the two design-partner accounts removes the data that makes self-serve good.",
+        "P8_strategy_fit": "The destination is right; the funding plan is missing.",
+        "P9_owner": "CEO.",
+        "P10_kill_criteria": "Cash under 4 months, stop everything."
+      }
+    }
+  ],
+  "known_good": {
+    "recommendation_class": "MODIFY — staged wind-down, not a hard cut: freeze new enterprise sales, keep renewals and specifically retain the two design-partner accounts, and migrate people to self-serve in tranches funded by enterprise gross profit, with explicit kill criteria on self-serve growth",
+    "decisive_fact": "The legacy segment is the pivot's only source of funding and its only source of training data. $900k in cash against a $3.4M twelve-month cash hole means a hard cut makes the company insolvent well before self-serve can reach payroll, and sunsetting the two design-partner accounts removes the usage data the new product's defaults depend on. The segment is not a distraction to be cut; it is the balance sheet and the data pipeline.",
+    "what_actually_happened": "Hard cuts in this pattern ran out of cash mid-transition and were sold for less than the legacy ARR was worth. Staged wind-downs — freeze new sales, harvest renewals, migrate headcount in tranches — reached self-serve escape velocity with dilution-free funding.",
+    "why_it_was_right": "The right answer preserves optionality and sequencing: the destination (self-serve) is correct, but the constraint is cash and data, so the decision is about pacing, not direction."
+  }
+}

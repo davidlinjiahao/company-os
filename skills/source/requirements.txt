@@ -1,2 +1,0 @@
-weasyprint>=60.0
-pypdf>=4.0.0

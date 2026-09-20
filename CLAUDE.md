@@ -9,6 +9,9 @@ This is a shared Claude Code team environment. Customize `company-os.config.sh` 
 - **Team**: Configure team in `company-os.config.sh`
 - **Stack**: Configure stack in `company-os.config.sh`
 - **Company agent (optional)**: this repo is a [QM](https://github.com/yc-software/qm) deployment directory. Runtime is the npm package `@yc-software/qm` pinned in `package.json`. `./setup.sh` installs the CLI. Deploy is manual: `npm exec qm -- setup` then `npm exec qm -- up`. Never commit `.env`. Never copy another organization's Fly apps or keys. See `AGENTS.md` and `deployment.md`.
+- **Evals first:** gold sets and decision rules are committed before a skill rewrite. Do not edit gold to make a run pass.
+- **One change at a time.** Slack agents post only when mentioned or under a standing order the operator set. No uncapped cron posting.
+- Optional integrations (Notion, Obsidian, recorders, vault) are skip-and-continue. Never stall a skill because a connector is missing.
 
 ## Available Skills
 
@@ -16,11 +19,11 @@ This is a shared Claude Code team environment. Customize `company-os.config.sh` 
 |-------|-------------|
 | `/setup` | One-command onboarding — interactive setup through Claude Code's UI. Laptop only; does not deploy QM. |
 | `/deploy` (agent) | Cloud company agent: follow `.codex/skills/company-os-deploy/SKILL.md`. Slack bot + channels. Never `qm init`. |
-| `/build [feature]` | Complete dev workflow with scope challenge, TDD, safety review, QA, evals, and automated shipping. Also: `/build review`, `/build qa`, `/build ship`, `/build eval`. |
-| `/decide [question]` | Structured decision framework. 1-way vs 2-way doors. Saves to Obsidian + Notion. |
+| `/build [feature]` | Dispatcher: write `ACCEPTANCE.md` before code, route each phase to a practice skill, loop until green. |
+| `/decide [question]` | 1-way vs 2-way. Ten principles, divergence kept, optional three-model panel, local ledger row. |
 | `/eval [component]` | Universal evaluation framework for Skills. Also: `/eval secure` for security audits. |
 | `/focus [capture list]` | Brain dump -> prioritized action plan. Also: `/focus read [urls]`, `/focus timeaudit`. |
-| `/momtest [idea]` | Generate a bias-free Mom Test interview-question bank for customer discovery / problem validation. |
+| `/pmf questions\|log` | Customer-discovery loop: past-behaviour question bank, quote-backed insights, hypothesis scoreboard. |
 | `/explain [topic]` | Turn any topic or document into a clear, visual explainer PDF (defines terms inline, auto-picks the right diagram). |
 | `/legal [contract]` | Redline a contract term-by-term → tracked-changes .docx + plain-English summary PDF. |
 | `/source [role]` | Turn a hiring need into a ranked A-grade candidate list (WHO scorecard + multi-source sweep → PDF). |

@@ -1,0 +1,61 @@
+{
+  "id": "h3-cofounder-control",
+  "decision": "Fight for control of the company, stay in a diminished role, or negotiate an exit",
+  "door_type": "1-way",
+  "framing": {
+    "context": "Two co-founders have irreconcilable views on the company's direction. Co-founder A (CEO, 28% common) wants to keep building the vertical product; Co-founder B (CTO, 31% common) wants to become a platform licensor. The five-seat board is B, B's long-time angel investor, the Series A lead who has publicly backed B's platform thesis, A, and one vacant independent seat that requires majority approval to fill. A has no protective provisions beyond standard common shareholder rights. The vertical product's revenue is $2.4M ARR concentrated in four customers, three of whom A personally sourced and manages. The platform has no revenue. A's employment agreement has no severance; A's equity is fully vested. A has been approached informally by two of the four customers asking whether A would build the vertical product independently.",
+    "options": [
+      "Fight: rally shareholders, try to replace the board",
+      "Stay in a diminished role under B's platform strategy",
+      "Negotiate a structured exit"
+    ],
+    "deadline": "2021-03-31",
+    "owner": "Co-founder A"
+  },
+  "members": [
+    {
+      "name": "Co-founder A",
+      "role": "CEO",
+      "lean": "MODIFY",
+      "confidence": 4,
+      "decisive_reason": "I do not know whether I am fighting for the company or for my ego.",
+      "answers": {
+        "P1_timing": "The board meets 2021-03-31 to vote on the platform pivot.",
+        "P2_reversibility": "1-way. Once I attack the board I cannot go back to collaborating.",
+        "P3_expected_value": "Winning control is worth everything; losing a fight costs me the customers and the reputation.",
+        "P4_downside_cap": "A public fight burns the four customers, which are the only asset either strategy needs.",
+        "P5_opportunity_cost": "A year of my life either way.",
+        "P6_information": "Would the Series A lead ever vote against B? I have not asked directly.",
+        "P7_second_order": "A proxy fight becomes diligence material for every future investor of mine.",
+        "P8_strategy_fit": "The vertical product is what I believe in.",
+        "P9_owner": "Me, but the board controls the outcome.",
+        "P10_kill_criteria": "If I cannot get three board votes, there is no fight to have."
+      }
+    },
+    {
+      "name": "Outside counsel",
+      "role": "Advisor",
+      "lean": "NO-GO",
+      "confidence": 8,
+      "decisive_reason": "Count the votes before you plan the battle.",
+      "answers": {
+        "P1_timing": "The vote happens with or without you.",
+        "P2_reversibility": "Litigation is the most irreversible option available.",
+        "P3_expected_value": "Board math is 3 to 1 against you with one seat vacant that you cannot fill without their majority.",
+        "P4_downside_cap": "Fiduciary claims, legal costs, and no severance.",
+        "P5_opportunity_cost": "18 months in discovery instead of building.",
+        "P6_information": "Whether the customers' contracts have assignment or change-of-control provisions.",
+        "P7_second_order": "A negotiated exit can carry a non-solicit carve-out; a fight cannot.",
+        "P8_strategy_fit": "Not a legal question.",
+        "P9_owner": "Co-founder A.",
+        "P10_kill_criteria": "None; this is a structural analysis."
+      }
+    }
+  ],
+  "known_good": {
+    "recommendation_class": "Negotiate a structured exit — the third door: a clean separation that trades A's cooperation on the platform transition for a carve-out (release, non-disparagement, a defined non-solicit boundary permitting A to serve the vertical, and equity retention), rather than fighting for control or staying diminished",
+    "decisive_fact": "The board math makes 'win control' unreachable: three of five seats are aligned with B, the fifth is vacant and requires the same majority to fill, and A has no protective provisions and no severance. An equilibrium you cannot reach is not a strategy. A's real leverage is not votes — it is the four customer relationships and A's cooperation during the transition, which are worth more in a negotiation than in a fight.",
+    "what_actually_happened": "Founders in this position who fought lost the vote, lost the customers to the ensuing uncertainty, and left with nothing but legal bills. Founders who priced their cooperation into a negotiated separation left with equity intact and, in several cases, a blessed relationship with the customers they had sourced.",
+    "why_it_was_right": "The analysis must convert leverage that exists (customers, transition cooperation, avoided disruption) into terms, instead of spending it on a contest the vote count says is already decided."
+  }
+}

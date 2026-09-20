@@ -1,0 +1,99 @@
+{
+  "role": "Founding Full-Stack Engineer",
+  "context": "Seed-stage consumer AI hardware startup, 6 people, shipping a physical device with a companion app and cloud backend. First non-founder engineering hire.",
+  "locations": ["San Francisco Bay Area", "Remote US"],
+  "min_score": 6,
+  "weights": {"must": 4, "stack": 2, "location": 1},
+  "keywords": {
+    "must": [
+      "founding engineer",
+      "first engineer",
+      "full-stack",
+      "fullstack",
+      "shipped to the app store",
+      "ble",
+      "bluetooth low energy",
+      "usb serial",
+      "mqtt",
+      "ota",
+      "over-the-air update",
+      "device telemetry",
+      "iot",
+      "hardware startup",
+      "consumer hardware"
+    ],
+    "stack": [
+      "typescript",
+      "react",
+      "react native",
+      "next.js",
+      "node",
+      "python",
+      "go",
+      "rust",
+      "swift",
+      "postgres",
+      "aws",
+      "gcp",
+      "terraform",
+      "websocket",
+      "grpc",
+      "expo",
+      "flutter"
+    ],
+    "location": [
+      "san francisco",
+      "bay area",
+      "sf",
+      "oakland",
+      "berkeley",
+      "palo alto",
+      "remote us",
+      "us remote",
+      "united states",
+      "usa",
+      "willing to relocate",
+      "work authorization"
+    ]
+  },
+  "sources": {
+    "hn": {"enabled": true, "threads": 6},
+    "reddit": {
+      "enabled": true,
+      "subreddits": ["forhire", "ExperiencedDevs", "reactnative", "embedded", "IOT", "webdev"]
+    },
+    "v2ex": {"enabled": false, "node": "cv", "pages": 3},
+    "github": {
+      "enabled": true,
+      "languages": ["typescript", "go", "rust", "python", "swift"],
+      "trending_since": "weekly",
+      "curated_repos": [
+        "espressif/esp-idf",
+        "meshtastic/firmware",
+        "home-assistant/core",
+        "blynkkk/blynk-library",
+        "zephyrproject-rtos/zephyr"
+      ]
+    },
+    "waas": {
+      "enabled": true,
+      "job_queries": ["full stack", "founding engineer", "hardware"],
+      "candidate_filters": ["", "location=san-francisco", "willing_to_relocate=true"]
+    }
+  },
+  "abar_legs": [
+    "L1 Shipped a consumer-facing product end to end: frontend AND backend AND deploy, personally owned. Evidence = named product + public URL.",
+    "L2 Built software that talks to physical devices or real-time device data: BLE, USB/serial, MQTT, firmware/OTA, camera or sensor streams, robotics telemetry.",
+    "L3 Startup autonomy: founder, founding/first-5 engineer, employee at a sub-20-person company, or solo maintainer of a real OSS project (>= 200 stars).",
+    "L4 SF Bay Area, or explicitly available for US-remote with stated US work authorization.",
+    "L5 At least 2 distinct public evidence URLs, all resolving."
+  ],
+  "exclude": [
+    "ML researchers with no shipped product",
+    "pure mechanical / EE / PCB engineers",
+    "agency or contract-shop profiles with no owned product",
+    "founders currently fundraising (not recruitable)",
+    "evidence only behind a login wall",
+    "no stated US work authorization or US-remote availability"
+  ]
+}

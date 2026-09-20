@@ -1,0 +1,295 @@
+{
+  "component": "source",
+  "type": "skill",
+  "version": "2.0",
+  "frozen_at": "2026-08-03",
+  "gold": "evals/GOLD.md",
+  "test_role": "Founding Full-Stack Engineer — consumer AI hardware startup — San Francisco or remote US",
+  "decision_rule": "ACCEPTED iff G1 and G2 pass AND every G3-G14 deterministic case passes. Any FAIL or any un-run blocking case => not accepted.",
+  "cases": [
+    {
+      "id": "G1",
+      "category": "quality",
+      "blocking": true,
+      "description": "Blind WHO-scorecard judge rates a submitted list of 10 candidates for the test role",
+      "input": {
+        "command": "python3 scripts/judge_list.py --list <candidates.md> --scorecard evals/GOLD.md --model gpt-5.6 --runs 3",
+        "list_size": 10
+      },
+      "expected": {
+        "llm_judge": {
+          "model": "gpt-5.6",
+          "family": "openai",
+          "blind": true,
+          "temperature": 0,
+          "runs": 3,
+          "aggregation": "majority vote per candidate, ties => not A",
+          "rubric": "Per candidate emit {name, legs:{L1..L5:{verdict:PASS|FAIL|UNSUPPORTED, quote}}, grade:A|HOLD|REJECT}. grade==A iff all five A-bar legs PASS with a quote taken verbatim from the submitted entry. Charitable inference forbidden; absent evidence is UNSUPPORTED, never PASS.",
+          "legs_source": "evals/GOLD.md section 1.4"
+        },
+        "threshold": "A_count >= 8 of exactly 10"
+      },
+      "metrics": [
+        "ABarPrecision",
+        "EvidenceGrounding"
+      ]
+    },
+    {
+      "id": "G2",
+      "category": "correctness",
+      "blocking": true,
+      "description": "Every evidence URL in the submitted candidate list resolves",
+      "input": {
+        "command": "python3 scripts/verify_links.py --input <candidates.md>"
+      },
+      "expected": {
+        "http_status": 200,
+        "coverage": "100% of extracted URLs",
+        "notes": "Redirects followed; final status must be 200. A 403 from a bot-walled host counts as FAIL — evidence must be openable by a human reviewer."
+      },
+      "metrics": [
+        "LinkResolution"
+      ]
+    },
+    {
+      "id": "G3",
+      "category": "hygiene",
+      "blocking": true,
+      "description": "No prior-company residue anywhere in the skill",
+      "input": {
+        "command": "python3 evals/run_cases.py --only G3",
+        "note": "case-insensitive recursive grep for the prior company name; exact pattern is assembled in run_cases.py (PRIOR_CO) so the eval files do not trip their own check"
+      },
+      "expected": {
+        "match_count": 0
+      },
+      "metrics": [
+        "Portability"
+      ]
+    },
+    {
+      "id": "G4",
+      "category": "hygiene",
+      "blocking": true,
+      "description": "No personal absolute paths or personal-vault references",
+      "input": {
+        "command": "python3 evals/run_cases.py --only G4",
+        "note": "exact pattern assembled in run_cases.py (PERSONAL_PATHS)"
+      },
+      "expected": {
+        "match_count": 0
+      },
+      "metrics": [
+        "Portability"
+      ]
+    },
+    {
+      "id": "G5",
+      "category": "hygiene",
+      "blocking": true,
+      "description": "Scripts carry no hardcoded role or stack targets — everything comes from the role profile",
+      "input": {
+        "command": "grep -riE 'kotlin|camerax|camera2|ncnn|tensorrt|vllm|libuvc|v4l2|shenzhen|嵌入式|固件' skills/source/scripts/"
+      },
+      "expected": {
+        "match_count": 0
+      },
+      "metrics": [
+        "Parameterization"
+      ]
+    },
+    {
+      "id": "G6",
+      "category": "functional",
+      "blocking": true,
+      "description": "Every script exposes --help and exits cleanly",
+      "input": {
+        "command": "for s in scripts/*.py scripts/*.sh; do \"$s\" --help; done"
+      },
+      "expected": {
+        "exit_code": 0,
+        "for": "all scripts"
+      },
+      "metrics": [
+        "AgentFriendliness"
+      ]
+    },
+    {
+      "id": "G7",
+      "category": "functional",
+      "blocking": true,
+      "description": "Every scraper has an offline --dry-run path that resolves and prints its config",
+      "input": {
+        "command": "<scraper> --profile evals/fixtures/test-role.json --dry-run"
+      },
+      "expected": {
+        "exit_code": 0,
+        "contains": "DRY RUN",
+        "network": "none"
+      },
+      "metrics": [
+        "AgentFriendliness"
+      ]
+    },
+    {
+      "id": "G8",
+      "category": "functional",
+      "blocking": true,
+      "description": "Parameterization is real: the same scraper resolves different queries for different role profiles",
+      "input": {
+        "command": "diff <(<scraper> --profile evals/fixtures/test-role.json --dry-run) <(<scraper> --profile profiles/example-data-infra.json --dry-run)"
+      },
+      "expected": {
+        "diff_nonempty": true
+      },
+      "metrics": [
+        "Parameterization"
+      ]
+    },
+    {
+      "id": "G9",
+      "category": "robustness",
+      "blocking": true,
+      "description": "A malformed role profile is rejected loudly, not silently defaulted",
+      "input": {
+        "command": "<scraper> --profile evals/fixtures/bad-role.json --dry-run"
+      },
+      "expected": {
+        "exit_code_not": 0,
+        "stderr_regex": "(?i)(missing|invalid).*(keywords|role)"
+      },
+      "metrics": [
+        "Robustness"
+      ]
+    },
+    {
+      "id": "G10",
+      "category": "portability",
+      "blocking": true,
+      "description": "Sweep scripts are stdlib-only so they run in the restricted sandbox with no pip install",
+      "input": {
+        "command": "python3 evals/run_cases.py --only G10"
+      },
+      "expected": {
+        "third_party_unguarded_imports": 0
+      },
+      "metrics": [
+        "Portability"
+      ]
+    },
+    {
+      "id": "G11",
+      "category": "security",
+      "blocking": true,
+      "description": "credentials.example.json exists, parses, and contains no real secret values",
+      "input": {
+        "command": "python3 evals/run_cases.py --only G11"
+      },
+      "expected": {
+        "all_values": "empty or <placeholder>"
+      },
+      "metrics": [
+        "Security"
+      ]
+    },
+    {
+      "id": "G12",
+      "category": "functional",
+      "blocking": true,
+      "description": "Credential resolution order is env > ~/.hiring-scraper/credentials.json, and a missing credential degrades to a skip, not a crash",
+      "input": {
+        "command": "python3 evals/run_cases.py --only G12"
+      },
+      "expected": {
+        "exit_code": 0,
+        "env_wins": true,
+        "missing_cred_behavior": "skip with message"
+      },
+      "metrics": [
+        "Robustness"
+      ]
+    },
+    {
+      "id": "G13",
+      "category": "structure",
+      "blocking": true,
+      "description": "Progressive disclosure: valid frontmatter, lean SKILL.md, detail pushed to references/",
+      "input": {
+        "command": "python3 evals/run_cases.py --only G13"
+      },
+      "expected": {
+        "frontmatter_name": "non-empty",
+        "frontmatter_description": "non-empty",
+        "skill_md_max_lines": 200,
+        "references_min_files": 3
+      },
+      "metrics": [
+        "Structure"
+      ]
+    },
+    {
+      "id": "G14",
+      "category": "structure",
+      "blocking": true,
+      "description": "Both runtimes are designed for: local Claude Code with MCPs, and the restricted sandbox with shell/files/curl/env keys only",
+      "input": {
+        "command": "python3 evals/run_cases.py --only G14"
+      },
+      "expected": {
+        "regex": "(?i)(qm|sandbox)",
+        "rule": "every MCP-dependent step in SKILL.md is marked optional or has a shell/curl fallback named on the same line or the line after"
+      },
+      "metrics": [
+        "Structure"
+      ]
+    },
+    {
+      "id": "N1",
+      "category": "harness",
+      "blocking": false,
+      "description": "Link verifier self-test — passes a live 200 URL, fails a live 404 URL",
+      "input": {
+        "command": "python3 evals/run_cases.py --only N1"
+      },
+      "expected": {
+        "good_url_exit": 0,
+        "bad_url_exit_not": 0
+      },
+      "metrics": [
+        "HarnessValidity"
+      ]
+    },
+    {
+      "id": "N2",
+      "category": "harness",
+      "blocking": false,
+      "description": "Live smoke of one no-auth source against the test-role profile",
+      "input": {
+        "command": "python3 scripts/hn_hired.py --profile evals/fixtures/test-role.json --threads 1 --out <tmp>"
+      },
+      "expected": {
+        "exit_code": 0,
+        "writes_report": true
+      },
+      "metrics": [
+        "HarnessValidity"
+      ]
+    },
+    {
+      "id": "N3",
+      "category": "harness",
+      "blocking": false,
+      "description": "Judge harness self-test on a fixture list — returns parseable per-leg verdicts",
+      "input": {
+        "command": "python3 scripts/judge_list.py --list evals/fixtures/judge-smoke.md --scorecard evals/GOLD.md --runs 1"
+      },
+      "expected": {
+        "parseable_json": true,
+        "per_leg_verdicts": "L1..L5 for every entry"
+      },
+      "metrics": [
+        "HarnessValidity"
+      ]
+    }
+  ]
+}

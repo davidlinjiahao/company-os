@@ -1,0 +1,32 @@
+{
+  "id": "t2-observability-vendor",
+  "decision": "Pick an observability vendor for the inference service",
+  "door_type": "2-way",
+  "framing": {
+    "context": "Three candidates, all OpenTelemetry-native so instrumentation is portable. Annual spend is under $30k, month-to-month billing, no data egress fee. Migration cost between them is about two engineer-days.",
+    "options": ["Vendor A (cheapest)", "Vendor B (best traces)", "Vendor C (already used by two engineers)"],
+    "deadline": "2026-08-10",
+    "owner": "Jordan"
+  },
+  "members": [
+    {
+      "name": "Jordan",
+      "role": "Head of Ops",
+      "lean": "GO",
+      "confidence": 8,
+      "decisive_reason": "OTel means we can swap in two days, so the cost of being wrong is near zero.",
+      "answers": {
+        "P1_timing": "This week. We are flying blind on p99 latency right now.",
+        "P2_reversibility": "2-way. OTel instrumentation is vendor-neutral; swap is ~2 engineer-days.",
+        "P3_expected_value": "All three solve the problem. Difference is maybe $8k/yr and some UI taste.",
+        "P4_downside_cap": "$30k and two days.",
+        "P5_opportunity_cost": "Every week without traces is a week of guessing at latency regressions.",
+        "P6_information": "None worth waiting for. A trial would take longer than a migration.",
+        "P7_second_order": "Whichever we pick, the team learns OTel, which transfers.",
+        "P8_strategy_fit": "Neutral. It is plumbing.",
+        "P9_owner": "Me.",
+        "P10_kill_criteria": "If p99 debugging is still painful after 30 days, switch."
+      }
+    }
+  ]
+}

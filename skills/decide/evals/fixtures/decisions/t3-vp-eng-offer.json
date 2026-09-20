@@ -1,0 +1,74 @@
+{
+  "id": "t3-vp-eng-offer",
+  "decision": "Hire Marcus Feld as VP Engineering on his stated terms",
+  "door_type": "1-way",
+  "framing": {
+    "context": "Marcus Feld ran a 40-person robotics org and would be the strongest engineering leader we could get at our stage. His terms: 4.0% equity on a standard 4-year vest with a full-acceleration single trigger, a board observer seat, and sole authority over the engineering roadmap. Our entire remaining option pool is 6.2%. Two of our three senior engineers have said privately they would report to him happily; the third, Riley, says he would leave. Our largest customer's program depends on Riley's calibration pipeline.",
+    "options": [
+      "Accept his terms as stated",
+      "Counter: 2.5% with milestone vesting, no board seat, roadmap shared with CEO",
+      "Pass and promote internally"
+    ],
+    "deadline": "2026-08-15",
+    "owner": "Alex"
+  },
+  "members": [
+    {
+      "name": "Alex",
+      "role": "CEO",
+      "lean": "MODIFY",
+      "confidence": 5,
+      "decisive_reason": "I will not trade governance for a hire, however good.",
+      "answers": {
+        "P1_timing": "He has a competing offer he says closes 2026-08-15. I have not verified it.",
+        "P2_reversibility": "1-way on the equity and the board observer seat. The title is reversible; the cap table and the board are not.",
+        "P3_expected_value": "With him we probably ship the v2 release two quarters earlier. Without him I keep running engineering myself and we slip.",
+        "P4_downside_cap": "Worst case is 4% gone, a board observer who is not aligned, and Riley out the door in the same quarter.",
+        "P5_opportunity_cost": "4.0% is two-thirds of the remaining pool. That is the next eight senior hires.",
+        "P6_information": "Whether his competing offer is real, and whether Riley's threat to leave is a position or an interest.",
+        "P7_second_order": "A board observer seat granted to an employee sets the precedent for every future senior hire and complicates the Series A.",
+        "P8_strategy_fit": "Great operator fit, bad governance fit.",
+        "P9_owner": "Me, but the board must approve equity over 3%.",
+        "P10_kill_criteria": "If he has not shipped a working v2 integration in two quarters we have mispriced him."
+      }
+    },
+    {
+      "name": "Jordan",
+      "role": "Head of Ops",
+      "lean": "GO",
+      "confidence": 8,
+      "decisive_reason": "We are eighteen months behind because nobody is running engineering full time.",
+      "answers": {
+        "P1_timing": "Now. Every week Alex runs engineering is a week ops runs itself.",
+        "P2_reversibility": "Mostly 2-way. Equity vests over four years; a bad hire is fired in six months and keeps very little.",
+        "P3_expected_value": "Two quarters of schedule is worth more than 1.5% of dilution.",
+        "P4_downside_cap": "Firing him at six months costs us 0.5% vested and a quarter of churn.",
+        "P5_opportunity_cost": "The alternative is Alex staying as de facto VP Eng, which is the actual bottleneck.",
+        "P6_information": "Backchannel references on how he handles disagreement with a founder.",
+        "P7_second_order": "A real VP Eng lets us hire eight engineers who would not join without a leader.",
+        "P8_strategy_fit": "Yes. Execution speed is the strategy.",
+        "P9_owner": "Alex.",
+        "P10_kill_criteria": "No engineering hire made by him within 90 days."
+      }
+    },
+    {
+      "name": "Riley",
+      "role": "Principal Engineer, Calibration",
+      "lean": "NO-GO",
+      "confidence": 9,
+      "decisive_reason": "Sole roadmap authority means the calibration pipeline gets rewritten by someone who has never seen our sensor data.",
+      "answers": {
+        "P1_timing": "There is no real deadline. The competing offer is almost certainly leverage.",
+        "P2_reversibility": "1-way in the way that matters: if the calibration pipeline is rewritten, the customer program is unrecoverable this year.",
+        "P3_expected_value": "Best case he is great and we still lose a quarter to reorganisation. Worst case he replaces the one system that works.",
+        "P4_downside_cap": "The downside is the customer program, not the equity.",
+        "P5_opportunity_cost": "The same 4% would fund three calibration engineers who could actually parallelise my work.",
+        "P6_information": "Ask him what he would do with the calibration pipeline in his first 90 days. His answer decides it.",
+        "P7_second_order": "Sole roadmap authority removes the CEO from technical arbitration permanently.",
+        "P8_strategy_fit": "No. Our moat is calibration data, not org chart depth.",
+        "P9_owner": "Alex decides, but I want it on record that I would not stay under sole roadmap authority.",
+        "P10_kill_criteria": "If he touches the calibration pipeline before the customer milestone, that is the failure signal."
+      }
+    }
+  ]
+}

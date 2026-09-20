@@ -1,159 +1,132 @@
 ---
 name: source
-description: Turns a hiring need into an A-grade candidate list. Use when the user wants to source, recruit, or hire for a role, "find candidates", "build a candidate list", "who should we hire for X", or asks for a WHO/scorecard. Chains a WHO-method scorecard, competitor calibration via /search, a looped multi-source candidate sweep with strict A-bar filtering, and a ranked Desktop markdown + clickable PDF. Run with "/source [role or context]".
-user-invocable: true
-disable-model-invocation: false
-argument-hint: "[role or context]"
-allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent, WebFetch, WebSearch, mcp__notion__search_pages, mcp__notion__get_page, mcp__notion__get_block_children, mcp__notion__get_block, mcp__notion__create_page, mcp__notion__append_markdown, mcp__notion__append_blocks, mcp__notion__update_block, mcp__notion__delete_block, mcp__exa__web_search_exa, mcp__exa__people_search_exa, mcp__exa__crawling_exa, mcp__exa__company_research_exa, Skill, ScheduleWakeup, Monitor, TaskStop, TaskList, PushNotification
+description: Turn a hiring need into a genuinely A-grade candidate list. Use when someone wants to source, recruit, or hire for a role — "find candidates", "build a candidate list", "who should we hire for X", "write a scorecard", "/source [role]". Runs the WHO method: scorecard first, then a parameterized multi-source sweep, then a strict A-bar filter where every claim carries an openable evidence link, then a ranked list.
 ---
 
-# Sourcing Skill
+# /source — hiring need → A-grade candidate list
 
-**Hiring need → A-grade candidate list.** WHO-method scorecard → competitor calibration via `/search` → looped multi-source sweep with strict A-bar filtering → ranked Desktop markdown + verified clickable PDF.
+**Prime directive: an honest short list beats a padded one.** Ten real A-players is a great outcome. Three is a fine outcome. Thirty names that "look decent" is a failure — it moves the filtering work onto the person who asked, which was the whole job.
 
-**Prime directive: quality over volume.** An honest short list of true A-players beats a padded one. List a candidate only when EVERY A-bar leg is met on first glance. Borderline → HOLD. Adjacent-but-not → excluded with reason.
+Method spine: **WHO** (Geoff Smart & Randy Street, *Who: The A Method for Hiring*) — write the bar down before you see anyone, then score everyone against that same written bar.
 
-## Quick Reference
+Seven phases, in order. Do not start sourcing before the scorecard exists; a sweep without a bar produces a pile, not a list.
 
 ```
-/source "Senior Backend Engineer"                    # role name
-/source "we keep shipping data-loss regressions"     # pain point → derive role
-/source <path-to-JD.md or Notion JD>                 # existing JD → scorecard
-/source                                              # vague need → ask for the role/JD
+UNDERSTAND → SCORECARD → PROFILE → CALIBRATE → SWEEP → FILTER → DELIVER
 ```
 
-Six phases, run in order: **UNDERSTAND → SCORECARD → CALIBRATE → SOURCE → LOOP → OUTPUT.**
-
-See `reference.md` for the full source matrix, agent-prompt templates, and the PDF recipe. See `assets/scorecard_prompt.md` for the WHO scorecard template. Render with `scripts/make_pdf.sh`.
+Details live next door — read the reference file for the phase you are in, not all of them:
+- `references/scorecard.md` — WHO scorecard template, how to write A-bar legs that are actually decidable
+- `references/sources.md` — every source, what it really yields, credentials, the scripts
+- `references/agents.md` — parallel sourcing subagent prompts, loop and depletion tracking
+- `references/output.md` — output format, link verification, optional PDF, optional blind judge
 
 ---
 
-## Phase 0 — INPUT
+## Runtimes
 
-Accept one of: (a) a role name, (b) a context source (a pasted JD, or a written/verbal description of the need), (c) nothing. The neutral default is **"paste the role/JD or describe the need."** If the need is vague, ask for it, or **derive the role from whatever evidence is provided in Phase 1** before proceeding. Do not invent a role from a job title alone — anchor it to the failures it must fix.
+This skill runs in two places. Check which one you are in before planning the sweep.
 
-> **Optional context sources:** if the environment has meeting-transcript or calendar tooling configured (e.g. a transcript MCP or a calendar MCP), you may use it to surface the pain in the user's own words. This is an enrichment, never a requirement — if absent, work from the user's brief alone.
-
-## Phase 1 — UNDERSTAND (pull the real pain)
-
-Find the true mission: what is breaking, who owns the fix, what "shipped" looks like.
-
-The primary input is whatever the user gives you — a JD, a written brief, or a verbal description of the pain. Read any provided JD / doc (`Read`, or `mcp__notion__get_page` + `get_block_children`).
-
-- Optionally search prior context if available: a prior-context vault, prior candidate lists on `~/Desktop`, or prior scorecards in Notion.
-- **Output of this phase:** a 1-paragraph statement of the role's true mission, framed as the failures it must fix (e.g. "repeated data-loss regressions in the storage layer → need an owner who has shipped a correctness-critical distributed system on a real product").
-
-## Phase 2 — SCORECARD (WHO / Geoff Smart, *Who: The A Method*)
-
-Build the scorecard, then create it as a Notion page. Structure:
-
-1. **Mission** — one paragraph. The role's reason to exist.
-2. **Outcomes** — 3–8, ranked, each **measurable + time-bound**, set at the "an A-player has shipped this exact thing" bar. Score 1–5.
-3. **Competencies** — **A. role-specific technical** + **B. cultural / values**. Score 1–5.
-
-If a **sibling role page exists in Notion** (search first), mirror its exact structure and headings.
-
-### Define the A-BAR here (this is the Phase-4 filter)
-
-State a small set of **must-have legs** — the non-negotiable signals. Borderline candidates fail. Example (generic — replace for the real role):
-
-> **A-bar:** (1) has personally shipped a production system of the relevant class on a real product **AND** (2) ≥1 of a small, role-specific skill set named in the scorecard.
-
-Write the legs explicitly. Every sourced candidate must be mapped against each leg with evidence.
-
-### ⚠️ CRITICAL NOTION TABLE GOTCHA (cost a rework — do not skip)
-
-`mcp__notion__create_page` and `append_markdown` **FLATTEN GFM markdown tables** into raw `| ... |` text paragraphs, and leave literal `**bold**` / `*italic*` markers as text. To get real tables:
-
-1. Create the page / sections with `create_page` or `append_markdown` (headings + prose only — no tables, no `**`/`*` markup in cells).
-2. For each table, call `mcp__notion__append_blocks` with a native table block, inserted **after the section heading** via `after_block_id`:
-   ```json
-   {"type":"table","has_column_header":true,
-    "rows":[["Outcome","Measure","Score"],["Ship X","by Q3, p95<5ms","5"]]}
-   ```
-3. **Delete the flattened `| ... |` text paragraphs** with `mcp__notion__delete_block`.
-4. Fix any surviving literal `**bold**` / `*italic*` with `mcp__notion__update_block`, setting `paragraph.rich_text` with annotations `{bold:true}` / `{italic:true}`.
-5. **`append_blocks` responses echo following-sibling IDs (misleading counts).** Always re-fetch `mcp__notion__get_block_children` to verify true state before deleting anything.
-
-## Phase 3 — CALIBRATE (competitor /search)
-
-Invoke the **`search` skill** (Skill tool) on the competitor set. Purpose:
-
-- (a) **Validate role design** — one combined role vs split (e.g. two adjacent skill areas as one hire or two?).
-- (b) **Extract the recurring stack / keyword taxonomy** — feeds the source queries.
-- (c) **Capture comp + locations** — sets the bullseye geography and pay band.
-- (d) **Seed the candidate pool** — named competitor employees in the target function.
-
-Feed the taxonomy and role-design finding back into the scorecard (refine Outcomes/Competencies) and into the Phase-4 query set.
-
-## Phase 4 — SOURCE (multi-source sweep)
-
-Dispatch **PARALLEL subagents** (`Agent` tool), one per source lane. Each agent returns **ONLY A-grade candidates**, with evidence mapped to **each A-bar leg**, plus a **HOLD** bucket (named missing leg). See `reference.md` for per-agent prompt templates.
-
-The lanes below are **pluggable** — run whichever are configured in the environment, skip the rest, and report honestly what ran. The always-available core is **Web/Exa + Competitor employees**; the others are optional add-ons.
-
-| Lane | Tooling | Honest yield |
+| | Local (Claude Code, MCPs available) | Sandbox (shell, files, curl, env API keys) |
 |---|---|---|
-| Competitor employees | Enumerate named engineers in the target function at each competitor from the Phase-3 `/search` output. **Exclude founders/CxO** (not recruitable). | **Highest-value pool** — people already doing the exact job. |
-| Web / Exa | `mcp__exa__web_search_exa`, `mcp__exa__people_search_exa` (**flaky/timeouts** → fall back to `web_search_exa` with category=people), `mcp__exa__crawling_exa`, `mcp__exa__company_research_exa`; plus `WebSearch`. | Solid for named people + company rosters. Always available. |
-| GitHub | Optional. Needs a `GITHUB_TOKEN` env var. Pull **TOP CONTRIBUTORS of ~20–25 curated high-signal repos** in the domain (beats noisy free-text search), then read profiles for company/location. | High-signal for technical roles — if a token is set. |
-| LinkedIn enrichment | Optional. If a LinkedIn enrichment provider is configured (via its own env vars), use it for headline/location/network-distance + warmth. Most such APIs do **NOT** return full work history → verify A-bar legs via Exa enrichment. | Good for warmth/identity; weak for confirming legs alone. |
-| Job-board / community scrapers | Optional, pluggable. If a candidate-scraper lane is wired up (job boards, community forums, regional CV boards, hackathon rosters, etc.), run it and harvest genuine A-grade hits. | Often keys on generic software keywords → weak for niche roles. Report honestly; don't pad. |
+| Meeting/note context | MCP note + vault + calendar tools | ask the user, or work from what they pasted |
+| Competitor calibration | `search` skill, Exa MCP | `curl` + `EXA_API_KEY` if set, else web reasoning + the WaaS jobs lane |
+| Sweep scripts | all of `scripts/` | all of `scripts/` — standard library only, no install |
+| Scorecard destination | a Notion/vault page if asked | a markdown file in the working directory |
+| Output | working dir, plus `~/Desktop` if it exists | working directory |
+| PDF | `make_pdf.sh` if pandoc + weasyprint present | usually absent — markdown is the deliverable |
 
-### FILTER DISCIPLINE
-
-- List only if **every A-bar leg is met on first glance.**
-- Borderline → **HOLD**, name the missing leg.
-- Adjacent-but-not (wrong specialty, pure adjacent discipline, tuning-only, founders) → **excluded with reason.**
-- Rank survivors into **tiers**: **bullseye** (location + pedigree fit) first.
-
-## Phase 5 — LOOP (until source depletion)
-
-This is a self-paced **`/loop`**. Each round:
-
-1. Dispatch the **remaining** source agents.
-2. **Dedup** new finds against the running list (name + profile URL).
-3. **Append** to the Desktop file (do not rewrite from scratch).
-4. Update the **source-depletion tracker**: **Swept / Pending / Blind-spots-needing-user-action**.
-5. **Self-pace.** If the user invoked `/loop /source …`, the `/loop` skill drives the cadence — just run one round per turn. If you pace it yourself, call `ScheduleWakeup` with `prompt = "/loop /source <original args>"` **verbatim** (the `/loop ` prefix re-enters the loop on the next firing), `delaySeconds` 1200–1800, and a one-line `reason`. Optionally arm a `Monitor` as the primary wake signal, keeping `ScheduleWakeup` as the fallback heartbeat.
-
-**CONVERGENCE RULE — stop when:** two consecutive rounds add **no new Tier-1/2 candidate**, OR all named sources are resolved/dead-ended. Then **omit `ScheduleWakeup`** to end the loop, `TaskStop` any Monitor, write a closing summary, and `PushNotification` it.
-
-**Track blind spots that need the user:** missing creds for an optional lane (e.g. a LinkedIn provider key, a scraper cookie), an absent `GITHUB_TOKEN`, CAPTCHA-walled boards, stale tokens needing rotation, warm-intro bridges. Surface these — they are user-only levers.
-
-## Phase 6 — OUTPUT (markdown + verified clickable PDF)
-
-Write `~/Desktop/<Role>_Candidates.md`:
-
-- **Tiers** (Tier 1 bullseye → Tier 2 → HOLD → Excluded-with-reason).
-- **Per-candidate:** evidence mapped to each A-bar leg, clickable profile link(s), warmth / network-distance.
-- **Top-Picks shortlist** (the 3–5 to contact first).
-- **Source-depletion tracker** (Swept / Pending / Blind-spots).
-
-Then render a **clickable PDF** (the script lives next to this skill, in `scripts/`):
-
-```bash
-bash "$(dirname "$0")/scripts/make_pdf.sh" "$HOME/Desktop/<Role>_Candidates.md"
-```
-
-`make_pdf.sh` runs (weasyprint + pandoc, installed via homebrew):
-
-```bash
-pandoc "<md>" -f gfm -t html5 --standalone \
-  --css scripts/style.css \
-  --pdf-engine=weasyprint -o "<pdf>"
-```
-
-`style.css`: `@page A4 landscape`, ~8pt font, teal headers (`#0f766e`), word-wrap/break table cells, blue links (`#1d4ed8`), page-number footer.
-
-**VERIFY links are real clickable annotations** (not just blue text) with pypdf — iterate pages, `page['/Annots']` → `/Subtype '/Link'` → `/A /URI`; count and print a sample. Report the clickable-URI count.
+**Rule:** every MCP-dependent step is optional and named as such. If a tool is missing, say so in the output and continue — never stall, and never quietly drop a lane without reporting it.
 
 ---
 
-## Key Principles
+## Phase 1 — UNDERSTAND
 
-- **Strict A-bar** — quality over volume; honest short list > padded one.
-- **Dedup every round** by name + profile URL.
-- **Be honest** about which sources yielded nothing — don't hide dead ends.
-- **Surface user-only levers** (creds, CAPTCHA, token rotation, warm-intro bridges).
-- **Always produce both** the markdown and a verified clickable PDF.
+Find the real mission: what is breaking, who owns the fix, what "shipped" looks like in 12 months.
+
+Inputs, in order of preference: what the user says now → a JD or doc they point at → recent meeting/vault context (local only, optional) → the pain they described.
+
+**Output:** one paragraph stating the role as *the failures it must eliminate*, not a job title. A title is not a mission. If you cannot name a failure the hire removes, ask one question before continuing.
+
+## Phase 2 — SCORECARD
+
+Write the scorecard: **Mission** (one paragraph) · **Outcomes** (3–8, ranked, each measurable and time-bound, set at the "an A-player has already shipped this exact thing" bar) · **Competencies** (technical + cultural) · **A-BAR legs**.
+
+The A-bar legs are the part that matters. See `references/scorecard.md`. Rules:
+- 3–6 legs, each **decidable from evidence a stranger can open**. "Strong engineer" is not a leg. "Has shipped an app to a public store and owned its crash budget" is.
+- One leg must be geography/work authorization. One must be "≥2 distinct public evidence URLs, all resolving".
+- Write the **exclusions** too: the adjacent-but-not profiles that will otherwise flood the results.
+
+Show the scorecard to the user before sweeping. It is cheap to fix now and expensive to fix after 200 profiles.
+
+## Phase 3 — PROFILE
+
+Turn the scorecard into `scripts/profiles/<role>.json` — copy `scripts/profiles/TEMPLATE.json`. This is the only place role knowledge lives; no script hardcodes a stack, a company, or a country.
+
+Keywords fall out of the legs: `must` = phrases only a plausible candidate writes about themselves; `stack` = supporting technology; `location` = cities, remote phrasing, work-authorization phrasing. `curated_repos` is the highest-signal field in the file — 15–25 repos a right-fit person would plausibly have touched.
+
+## Phase 4 — CALIBRATE
+
+Find who else is hiring this exact role, and what they call it. Purpose: (a) sanity-check the role design — one hire or two? (b) harvest the real keyword taxonomy, (c) get the comp band and geography, (d) name competitor employees as a seed pool.
+
+Local: the `search` skill or Exa. Sandbox: `python3 scripts/yc_waas.py --mode jobs --profile <p>` gives a free read on comparable roles and pay. Feed everything learned back into the scorecard and the profile before sweeping.
+
+## Phase 5 — SWEEP
+
+```bash
+bash scripts/sweep.sh --profile scripts/profiles/<role>.json          # all lanes + merge
+bash scripts/sweep.sh --profile <p> --only github,hn                  # one or two lanes
+bash scripts/sweep.sh --profile <p> --dry-run                         # show the queries, no network
+```
+
+Lanes: `hn` · `reddit` · `v2ex` (off by default) · `github` (curated repos = best lane) · `waas-jobs` · `waas-candidates` (needs `WAAS_COOKIE`). A lane without credentials skips itself and is reported; it is never silently dropped.
+
+Run the script lanes **in parallel with agent lanes** — competitor employees, LinkedIn graph, targeted web search — using the prompts in `references/agents.md`. Scripts find people who are *publicly looking*; agents find people who are *good*. Both matter, and the second group is usually where the A-players are.
+
+**Merge** combines the lanes and flags anyone appearing in two independent sources. Merged output is **raw sweep material, not a candidate list.**
+
+## Phase 6 — FILTER (this phase is the product)
+
+For each candidate, map **every A-bar leg** to a specific quotable piece of evidence with an openable URL.
+
+- **All legs pass with evidence → list them.**
+- **Exactly one leg missing but plausible → HOLD**, naming the missing leg and what would settle it.
+- **Two or more missing, or an exclusion matches → excluded, with the reason written down.**
+
+Non-negotiable: absence of evidence is *absence*, never "probably has it". Being on a team that shipped X is not shipping X. Do not average across legs. Do not let a famous employer substitute for a leg.
+
+Then verify the evidence actually resolves:
+
+```bash
+python3 scripts/verify_links.py --input <candidates.md>
+```
+
+Any link that does not return 200 is not evidence — replace the citation or drop the claim. A candidate whose only evidence is behind a login wall does not go on the list.
+
+## Phase 7 — DELIVER
+
+Write `<Role>_Candidates.md` (working directory; also `~/Desktop` locally if it exists), containing:
+
+1. **Top picks** — the 3–5 to contact first, and why each, in one line.
+2. **Ranked candidates** — per candidate: the leg-by-leg evidence table with links, warmth/route-in, and the single strongest reason they are A.
+3. **HOLD** — with the missing leg named.
+4. **Excluded** — grouped by reason. This section is evidence of a real filter; do not omit it.
+5. **Source-depletion tracker** — swept / pending / blocked-needing-you (missing credentials, bot-walled sites, warm intros only the user can make).
+
+Optional extras: `bash scripts/make_pdf.sh <md>` for a clickable PDF, and `python3 scripts/judge_list.py --list <md> --scorecard <scorecard>` to have a different model family grade the list blind against the same legs before you hand it over.
+
+If the sweep did not find enough A-players, **say so** and name what would unlock more — a missing credential, a different geography, a split role, or a lowered bar the user must consciously choose. Never pad the list to hit a number.
+
+---
+
+## Key principles
+
+- The scorecard is written before anyone is seen, and never edited to fit a candidate you like.
+- Every claim carries a link a stranger can open. Unopenable evidence is not evidence.
+- Report dead-end sources honestly; a hidden blind spot is worse than an empty lane.
+- Surface the levers only the user can pull, explicitly, at the end.
+- Quality over volume, every single time.
+
+## Usage tracking (company convention)
+
+Optionally record one memory fact: `used source for <5-word purpose>`. Skip if no memory tool exists.

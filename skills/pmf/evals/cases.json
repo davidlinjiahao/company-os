@@ -1,0 +1,38 @@
+{
+  "component": "pmf",
+  "type": "skill",
+  "version": "1.1",
+  "description": "Acceptance eval for /pmf. Gold lives in GOLD.md and score.py. Fixtures are synthetic.",
+  "fixtures": {
+    "call-A.md": "synthetic discovery call; pitch at [18:00]",
+    "call-B.md": "synthetic excerpts, split diarization",
+    "call-C.md": "synthetic advisor who wants to join",
+    "call-D-postpitch.md": "negative control: call A from the pitch onward"
+  },
+  "cases": [
+    {
+      "id": "structure",
+      "category": "static",
+      "description": "SKILL.md shape, dual runtime, fixtures present, no personal names.",
+      "runner": "score.py --structure"
+    },
+    {
+      "id": "selftest",
+      "category": "static",
+      "description": "Scorer discriminates a clean sample from laundered compliments.",
+      "runner": "score.py --selftest"
+    },
+    {
+      "id": "extract-gold",
+      "category": "functional",
+      "description": "Cold /pmf log over A+B+C finds >=8/10 gold insights.",
+      "runner": "cold"
+    },
+    {
+      "id": "negative-control",
+      "category": "safety",
+      "description": "/pmf log of call-D yields 0 validated insights.",
+      "runner": "cold"
+    }
+  ]
+}

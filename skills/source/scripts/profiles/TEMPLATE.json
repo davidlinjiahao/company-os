@@ -1,0 +1,52 @@
+{
+  "_README": "A ROLE PROFILE is the only place role-specific knowledge lives. Every script in scripts/ reads it and hardcodes nothing. Fill this in AFTER the scorecard exists — the keywords should fall out of the A-bar legs, not the other way round. Keys starting with _ are documentation and are ignored.",
+
+  "role": "<job title, e.g. Founding Full-Stack Engineer>",
+  "context": "<one or two sentences: stage, team size, what is breaking, what this hire must fix>",
+  "locations": ["<bullseye geography>", "<acceptable second geography>"],
+
+  "min_score": 6,
+  "_min_score": "Keyword-score floor for a post to be worth a human look. Raise it if the sweep is noisy, lower it for short-form sources. It is a triage threshold, NOT the A-bar.",
+
+  "weights": {"must": 4, "stack": 2, "location": 1},
+
+  "keywords": {
+    "_": "REQUIRED. 'must' terms are the ones that only a plausible candidate would write about themselves. 'stack' terms are supporting technology. 'location' terms are geography and work-authorization phrases. Non-ASCII terms are matched as substrings, ASCII terms on word boundaries.",
+    "must": ["<signal that only a real candidate would claim>"],
+    "stack": ["<supporting technology>"],
+    "location": ["<city>", "<remote phrasing>", "<work-authorization phrasing>"]
+  },
+
+  "sources": {
+    "_": "Per-lane switches. Omit a lane to accept its defaults; set enabled:false to skip it.",
+    "hn": {"enabled": true, "threads": 6},
+    "reddit": {"enabled": true, "subreddits": ["forhire", "<role-relevant sub>"]},
+    "v2ex": {"enabled": false, "node": "cv", "pages": 3},
+    "github": {
+      "enabled": true,
+      "languages": ["<language>"],
+      "trending_since": "weekly",
+      "curated_repos": ["<owner/repo the right person would have contributed to>"],
+      "_curated_repos": "The highest-signal lane in the whole sweep. 15-25 repos chosen by someone who knows the domain beats any keyword search."
+    },
+    "waas": {
+      "enabled": true,
+      "job_queries": ["<role phrasing>"],
+      "candidate_filters": ["", "location=<city-slug>", "willing_to_relocate=true"]
+    }
+  },
+
+  "abar_legs": [
+    "L1 <non-negotiable leg, stated so that PASS/FAIL is decidable from a profile>",
+    "L2 <...>",
+    "L3 <...>",
+    "L4 <geography / work authorization>",
+    "L5 <at least N distinct public evidence URLs, all resolving>"
+  ],
+  "_abar_legs": "Copy these verbatim from the scorecard. They are the filter AND the judge's rubric. Every one must be decidable from evidence a stranger can open.",
+
+  "exclude": [
+    "<adjacent-but-not profile that will flood the results>",
+    "<category that is not recruitable, e.g. founders currently fundraising>"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "h1-exclusive-distribution",
+  "decision": "Grant Harrow Industrial exclusive US distribution of our sensor module for 3 years",
+  "door_type": "1-way",
+  "framing": {
+    "context": "Harrow Industrial reaches every buyer in our category and is offering exclusive US distribution for 3 years. Harrow also owns Meridian, a house-brand sensor line that competes with ours in the same catalog slot. The draft agreement has no minimum purchase commitment, no marketing spend commitment, and no performance-based termination right for us; it is terminable by Harrow on 60 days notice. Our direct sales are $1.1M ARR from 14 accounts, growing 8% per quarter. Harrow projects $6M in year two but will not put any of it in the contract.",
+    "options": [
+      "Sign the exclusive as drafted",
+      "Counter: non-exclusive, or exclusive with a $2M/yr minimum and a 12-month performance termination right",
+      "Stay direct and hire two field sales reps"
+    ],
+    "deadline": "2019-11-30",
+    "owner": "Founder/CEO"
+  },
+  "members": [
+    {
+      "name": "Founder",
+      "role": "CEO",
+      "lean": "MODIFY",
+      "confidence": 6,
+      "decisive_reason": "A projection they will not sign is not a commitment.",
+      "answers": {
+        "P1_timing": "Their quarter ends 2019-11-30. That is their deadline, not ours.",
+        "P2_reversibility": "1-way. We would dismantle direct sales and could not rebuild those 14 relationships quickly.",
+        "P3_expected_value": "If Harrow performs, $6M. If they shelve us, we lose the $1.1M we already have.",
+        "P4_downside_cap": "Losing direct revenue is company-ending inside 9 months.",
+        "P5_opportunity_cost": "Exclusivity forecloses every other channel for 3 years.",
+        "P6_information": "Will Harrow accept a minimum purchase commitment? One ask answers it.",
+        "P7_second_order": "Once we are exclusive, Harrow controls our pricing and our customer relationships.",
+        "P8_strategy_fit": "Distribution reach fits. Losing the customer relationship does not.",
+        "P9_owner": "Me.",
+        "P10_kill_criteria": "No stated exit if they underperform. That is the problem."
+      }
+    },
+    {
+      "name": "VP Sales",
+      "role": "VP Sales",
+      "lean": "GO",
+      "confidence": 7,
+      "decisive_reason": "We cannot build national coverage on 14 accounts and two reps.",
+      "answers": {
+        "P1_timing": "Sign before their fiscal year closes or lose the slot.",
+        "P2_reversibility": "60-day termination cuts both ways.",
+        "P3_expected_value": "$6M beats $1.1M growing 8%.",
+        "P4_downside_cap": "We keep the product; worst case we go direct again.",
+        "P5_opportunity_cost": "Two field reps cost $500k and take a year to ramp.",
+        "P6_information": "Their catalog placement commitment.",
+        "P7_second_order": "Harrow's brand legitimises us with procurement teams.",
+        "P8_strategy_fit": "Yes, scale.",
+        "P9_owner": "Founder.",
+        "P10_kill_criteria": "Under $1.5M in year one, walk."
+      }
+    }
+  ],
+  "known_good": {
+    "recommendation_class": "NO-GO on the exclusive as drafted; counter to non-exclusive or exclusivity conditioned on a minimum purchase commitment and a performance termination right",
+    "decisive_fact": "Harrow owns a competing house brand (Meridian) in the same catalog slot and has committed to nothing: no minimum purchase, no marketing spend, and unilateral 60-day termination. Exclusivity is therefore a free option for Harrow and a one-way surrender of the only channel the company controls. The $6M projection has no contractual force.",
+    "what_actually_happened": "Companies that signed this structure were listed but never pushed; Harrow's sales force defaulted to the house brand, orders came in at roughly 15% of projection, and the startup had by then dismantled direct sales and could not rebuild the 14 accounts inside its runway.",
+    "why_it_was_right": "The correct move is to make exclusivity cost Harrow something. Either they commit volume, or they get non-exclusive access. Both preserve the direct channel while testing whether Harrow's interest is real."
+  }
+}

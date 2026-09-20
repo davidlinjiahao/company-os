@@ -1,0 +1,61 @@
+{
+  "id": "h2-raise-now-or-wait",
+  "decision": "Take the committed flat-price Series A term sheet now, or wait two quarters to raise at a higher price once the enterprise metric lands",
+  "door_type": "1-way",
+  "framing": {
+    "context": "We have a signed term sheet from an existing investor: $8M at a $32M pre, flat to our last round, expiring 2022-06-15. Cash on hand is $3.1M and net burn is $520k/month, so we have roughly 6.0 months of runway. The higher price everyone wants depends on landing three enterprise logos, and the shortest of those sales cycles has historically run 5 months from first call; two of the three have not had a first call yet. No other investor has given us a term sheet; two passed citing 'come back with enterprise proof'. The market has turned: comparable Series A pre-money multiples have compressed about 40% in the last two quarters and three of our peers have had term sheets pulled.",
+    "options": [
+      "Sign the flat $8M now",
+      "Wait two quarters and raise at a higher price",
+      "Sign now and cut burn to extend to 18 months"
+    ],
+    "deadline": "2022-06-15",
+    "owner": "CEO"
+  },
+  "members": [
+    {
+      "name": "CEO",
+      "role": "CEO",
+      "lean": "MODIFY",
+      "confidence": 6,
+      "decisive_reason": "Flat is embarrassing but insolvency is worse.",
+      "answers": {
+        "P1_timing": "The term sheet expires 2022-06-15 and cannot be extended past their IC cycle.",
+        "P2_reversibility": "1-way on price and on the signal a flat round sends.",
+        "P3_expected_value": "Waiting works only if all three logos land inside 5 months, which has never happened here.",
+        "P4_downside_cap": "Running out of cash mid-raise means a down round or a fire sale.",
+        "P5_opportunity_cost": "Roughly 8 points of extra dilution versus the price we hoped for.",
+        "P6_information": "Would the investor re-price up in 90 days if a logo lands? Ask.",
+        "P7_second_order": "A funded 18 months buys the enterprise proof anyway, just from a safer position.",
+        "P8_strategy_fit": "Survival is the strategy this year.",
+        "P9_owner": "Me, with board approval.",
+        "P10_kill_criteria": "If burn is not under $400k by Q4 the plan failed regardless of price."
+      }
+    },
+    {
+      "name": "Board member",
+      "role": "Investor director",
+      "lean": "NO-GO",
+      "confidence": 5,
+      "decisive_reason": "A flat round re-prices the whole cap table and demotivates the team.",
+      "answers": {
+        "P1_timing": "There is always another term sheet if the business is good.",
+        "P2_reversibility": "Price is reversible over time; the company's story is not.",
+        "P3_expected_value": "One logo doubles the price.",
+        "P4_downside_cap": "Bridge from insiders if it slips.",
+        "P5_opportunity_cost": "8 points of dilution is real money.",
+        "P6_information": "Where the three logos actually are in cycle.",
+        "P7_second_order": "Signalling weakness invites tougher terms later.",
+        "P8_strategy_fit": "We should be raising on strength.",
+        "P9_owner": "CEO with board.",
+        "P10_kill_criteria": "Under 4 months of cash, take anything."
+      }
+    }
+  ],
+  "known_good": {
+    "recommendation_class": "GO — sign the committed $8M now (ideally paired with a burn cut), do not wait for the enterprise metric",
+    "decisive_fact": "The arithmetic is decisive and independent of valuation opinion: 6.0 months of runway versus a 5-month minimum sales cycle for logos that have not started, in a market where multiples compressed 40% and peers had term sheets pulled. Waiting means entering a raise with under 2 months of cash and no committed alternative, which is precisely when terms get worst. The board member's 'bridge from insiders' is an assumption, not a commitment.",
+    "what_actually_happened": "Companies that took the flat round in this window survived and re-priced up 12-18 months later on the enterprise proof. Companies that waited for the metric raised at down-round prices with structure (participating preferred, ratchets) or did not raise at all.",
+    "why_it_was_right": "Runway is a hard constraint; price is a soft preference. Signing removes the constraint that forces bad decisions and still allows the higher price later, from a position of solvency."
+  }
+}

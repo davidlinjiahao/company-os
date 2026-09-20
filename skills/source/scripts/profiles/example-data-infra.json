@@ -1,0 +1,65 @@
+{
+  "_README": "A worked example of a role profile deliberately unlike the one in the eval fixtures — different function, different stack, different geography. It exists to show that the scripts carry no assumptions: swap this file for another and the same scrapers issue entirely different queries.",
+
+  "role": "Senior Data Infrastructure Engineer",
+  "context": "Series-B B2B SaaS, 40 people. The nightly pipeline misses its SLA three days a week and nobody owns the warehouse. This hire owns ingestion through serving.",
+  "locations": ["New York City", "Remote EU"],
+  "min_score": 6,
+  "weights": {"must": 4, "stack": 2, "location": 1},
+
+  "keywords": {
+    "must": [
+      "data engineer", "data infrastructure", "data platform", "analytics engineer",
+      "streaming pipeline", "change data capture", "cdc", "data warehouse",
+      "lakehouse", "orchestration", "data quality", "sla"
+    ],
+    "stack": [
+      "airflow", "dagster", "dbt", "spark", "flink", "kafka", "clickhouse",
+      "snowflake", "bigquery", "duckdb", "iceberg", "trino", "python", "scala",
+      "sql", "terraform", "kubernetes"
+    ],
+    "location": [
+      "new york", "nyc", "brooklyn", "remote eu", "europe", "london", "berlin",
+      "amsterdam", "lisbon", "cet", "willing to relocate"
+    ]
+  },
+
+  "sources": {
+    "hn": {"enabled": true, "threads": 6},
+    "reddit": {"enabled": true, "subreddits": ["forhire", "dataengineering", "ExperiencedDevs"]},
+    "v2ex": {"enabled": false, "node": "cv", "pages": 3},
+    "github": {
+      "enabled": true,
+      "languages": ["python", "scala", "rust"],
+      "trending_since": "weekly",
+      "curated_repos": [
+        "apache/airflow",
+        "dagster-io/dagster",
+        "dbt-labs/dbt-core",
+        "apache/iceberg",
+        "duckdb/duckdb",
+        "ClickHouse/ClickHouse"
+      ]
+    },
+    "waas": {
+      "enabled": true,
+      "job_queries": ["data engineer", "data infrastructure"],
+      "candidate_filters": ["", "location=new-york", "willing_to_relocate=true"]
+    }
+  },
+
+  "abar_legs": [
+    "L1 Has personally owned a production data platform end to end: ingestion, orchestration, warehouse modelling, and serving. Named system + a public artefact (talk, post, repo, or docs).",
+    "L2 Has run a pipeline with a real SLA and been on the hook when it broke — evidence of incident ownership, not just authorship.",
+    "L3 Scale evidence: a stated volume (events/day, TB, or table count) they were responsible for.",
+    "L4 NYC-based or EU-remote-eligible with stated work authorization.",
+    "L5 At least 2 distinct public evidence URLs, all resolving."
+  ],
+
+  "exclude": [
+    "analysts and BI-dashboard-only profiles",
+    "ML engineers with no platform ownership",
+    "consultants with no named production system",
+    "evidence only behind a login wall"
+  ]
+}

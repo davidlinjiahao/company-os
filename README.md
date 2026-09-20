@@ -115,11 +115,11 @@ Type these in any Claude Code session. Each runs a specialized workflow.
 | Skill | Command | What It Does |
 |---|---|---|
 | **setup** | `/setup` | One-command onboarding — interactive setup through Claude Code's UI |
-| **build** | `/build [feature]` | Complete dev workflow: brainstorm, plan, TDD, review, ship |
-| **decide** | `/decide [question]` | Structured decision framework — 1-way vs 2-way doors, Council deliberation |
+| **build** | `/build [feature]` | Dispatcher: acceptance committed before code, loop until green |
+| **decide** | `/decide [question]` | Ten principles, optional three-model panel, local ledger |
 | **eval** | `/eval [component]` | Run evaluation suite on MCPs, agents, or skills. Also: `/eval secure` for security audits |
 | **focus** | `/focus [brain dump]` | Paste messy thoughts, get a prioritized action plan |
-| **momtest** | `/momtest [idea]` | Generate a bias-free Mom Test interview-question bank for customer discovery |
+| **pmf** | `/pmf questions\|log` | Customer-discovery loop (past-behaviour questions + quote-backed log) |
 | **explain** | `/explain [topic]` | Turn any topic or document into a clear, visual explainer PDF |
 | **legal** | `/legal [contract]` | Redline a contract → tracked-changes .docx + plain-English summary PDF |
 | **source** | `/source [role]` | Turn a hiring need into a ranked A-grade candidate list |
@@ -204,7 +204,7 @@ company-os/
 │   ├── decide/            # /decide — decision framework
 │   ├── eval/              # /eval — evaluation + security audits
 │   ├── focus/             # /focus — brain dump → action plan
-│   ├── momtest/           # /momtest — Mom Test interview questions
+│   ├── pmf/               # /pmf — customer-discovery loop
 │   ├── explain/           # /explain — topic → visual explainer PDF
 │   ├── legal/             # /legal — contract redline
 │   ├── source/            # /source — recruiting candidate list

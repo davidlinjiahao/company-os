@@ -1,87 +1,225 @@
 {
   "component": "build",
   "type": "skill",
-  "version": "1.0",
+  "version": "4.0",
+  "description": "Acceptance suite for the /build dispatcher rebuild. Pre-registered BEFORE any skill content was written. Paths are relative to the repo root of the worktree.",
+  "runner_note": "runner=shell cases are executed by evals/run_checks.py (deterministic, no LLM). runner=llm-judge cases require ANTHROPIC_API_KEY; if absent they are reported JUDGE-PENDING and never silently passed. runner=manual-benchmark cases require an end-to-end agent run and are reported RUN-PENDING until executed.",
   "cases": [
     {
-      "id": "build-review-parallel",
+      "id": "routing-coverage-100pct",
+      "category": "structure",
+      "runner": "shell",
+      "description": "The routing table must name 100% of the practice skills actually installed in this environment (inventory frozen in GOLD.md). Zero missing, and every entry must carry a skip rule.",
+      "input": {"command": "python3 skills/build/evals/check_routing.py"},
+      "expected": {
+        "exit_code": 0,
+        "contains": ["ROUTING COVERAGE: 16/16", "MISSING: none", "SKIP-RULE COVERAGE: 16/16"]
+      },
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "skill-md-has-phase-routing-table",
+      "category": "structure",
+      "runner": "shell",
+      "description": "SKILL.md itself (not only references/) must carry the explicit phase -> skill -> skip routing table, because dispatch decisions happen at the top level.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only skill-md-has-phase-routing-table --raw"},
+      "expected": {"exit_code": 0, "contains": ["Phase", "Skill to invoke", "Skip when"]},
+      "metrics": ["Formatting", "Completeness"]
+    },
+    {
+      "id": "skill-md-frontmatter-and-size",
+      "category": "structure",
+      "runner": "shell",
+      "description": "Valid YAML frontmatter with name+description; SKILL.md under 300 lines (progressive disclosure).",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only skill-md-frontmatter-and-size --raw"},
+      "expected": {"exit_code": 0, "contains": ["name=build", "description=ok", "lines<=300"]},
+      "metrics": ["Formatting"]
+    },
+    {
+      "id": "progressive-disclosure-references-resolve",
+      "category": "structure",
+      "runner": "shell",
+      "description": "Every references/ and scripts/ path mentioned in SKILL.md must exist on disk, and every file in references/ must be linked from SKILL.md (no dead links, no orphans).",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only progressive-disclosure-references-resolve --raw"},
+      "expected": {"exit_code": 0, "contains": ["dead_links=0", "orphan_references=0"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "tdd-is-the-spine",
       "category": "functional",
-      "description": "/build review should spawn code-reviewer and duplication-hunter in parallel",
-      "input": {"command": "/build review src/"},
-      "expected": {"spawns_parallel": ["code-reviewer", "duplication-hunter"]},
+      "runner": "shell",
+      "description": "test-driven-development must be routed as non-skippable: its routing-table entry must say it is never skipped, and SKILL.md must state the no-production-code-without-a-failing-test law.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only tdd-is-the-spine --raw"},
+      "expected": {"exit_code": 0, "contains": ["tdd_never_skipped=true", "iron_law_present=true"]},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "acceptance-pre-registered-before-implementation",
+      "category": "functional",
+      "runner": "shell",
+      "description": "The skill must mandate that every build run writes ACCEPTANCE.md + evals/cases.json (in the /eval skill's format) and commits them BEFORE any implementation code, and must point at the /eval skill for the format.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only acceptance-pre-registered-before-implementation --raw"},
+      "expected": {"exit_code": 0, "contains": ["acceptance_before_impl=true", "eval_format_referenced=true", "cases_json_mandated=true"]},
+      "metrics": ["TaskCompletion", "Completeness"]
+    },
+    {
+      "id": "loop-driver-documented",
+      "category": "functional",
+      "runner": "shell",
+      "description": "The skill must document a loop driver that re-runs acceptance until green: the /loop pattern, a runtime-independent shell fallback, a bounded max-iteration cap, and stuck detection.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only loop-driver-documented --raw"},
+      "expected": {"exit_code": 0, "contains": ["loop_pattern=true", "shell_fallback=true", "max_iterations=true", "stuck_detection=true"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "build-init-emits-acceptance-and-loop-driver",
+      "category": "functional",
+      "runner": "shell",
+      "description": "Running the bundled init script in a scratch dir must emit BOTH the ACCEPTANCE artifact and an executable loop driver, plus a cases.json skeleton. Mechanical proof of the integral requirement.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only build-init-emits-acceptance-and-loop-driver --raw"},
+      "expected": {"exit_code": 0, "contains": ["ACCEPTANCE.md=present", "cases.json=present", "loop.sh=present", "loop.sh=executable", "acceptance_check.sh=executable"]},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "loop-driver-red-then-green",
+      "category": "functional",
+      "runner": "shell",
+      "description": "The generated acceptance checker must actually fail when acceptance is unmet and pass once met. A driver that always exits 0 is worthless.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only loop-driver-red-then-green --raw"},
+      "expected": {"exit_code": 0, "contains": ["red_exit_nonzero=true", "green_exit_zero=true"]},
+      "metrics": ["ErrorHandling", "TaskCompletion"]
+    },
+    {
+      "id": "guardrails-preserved-safety-review",
+      "category": "safety",
+      "runner": "shell",
+      "description": "All five CRITICAL safety-review items from the reference copy survive the rebuild (SQL/data, LLM trust boundary, auth, secret exposure, injection) and are wired to a blocking gate.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only guardrails-preserved-safety-review --raw"},
+      "expected": {"exit_code": 0, "contains": ["critical_items=5/5", "blocking_gate=true"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "guardrails-workflow-gate-guarded",
+      "category": "safety",
+      "runner": "shell",
+      "description": "Every WORKFLOW_GATE invocation must be guarded so it no-ops when the hook script is absent (restricted sandbox). No unguarded invocation anywhere in the skill tree.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only guardrails-workflow-gate-guarded --raw"},
+      "expected": {"exit_code": 0, "contains": ["workflow_gate_mentions>=1", "unguarded_invocations=0"]},
+      "metrics": ["ErrorHandling"]
+    },
+    {
+      "id": "guardrails-no-secrets",
+      "category": "safety",
+      "runner": "shell",
+      "description": "No credential-shaped literals anywhere in the skill tree, and an explicit no-secrets rule for generated code.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only guardrails-no-secrets --raw"},
+      "expected": {"exit_code": 0, "contains": ["secret_literals=0", "no_secrets_rule=true"]},
+      "metrics": ["Safety"]
+    },
+    {
+      "id": "dual-runtime-mcp-guarded",
+      "category": "safety",
+      "runner": "shell",
+      "description": "Two runtimes: a capability matrix for local Claude Code vs restricted sandbox must exist, and every MCP- or plugin-dependent step must be marked optional/guarded. No step may hard-require an MCP.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only dual-runtime-mcp-guarded --raw"},
+      "expected": {"exit_code": 0, "contains": ["runtime_matrix=true", "qm_sandbox_documented=true", "unguarded_mcp_steps=0"]},
+      "metrics": ["Completeness", "ErrorHandling"]
+    },
+    {
+      "id": "scripts-are-portable-and-lint-clean",
+      "category": "functional",
+      "runner": "shell",
+      "description": "Bundled shell scripts must pass `bash -n` and contain no hardcoded absolute user paths that would break in the restricted sandbox.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only scripts-are-portable-and-lint-clean --raw"},
+      "expected": {"exit_code": 0, "contains": ["bash_syntax_ok=true", "hardcoded_user_paths=0"]},
+      "metrics": ["ErrorHandling"]
+    },
+    {
+      "id": "benchmarks-three-specs-present",
+      "category": "structure",
+      "runner": "shell",
+      "description": "Three benchmark project specs exist: a CLI tool, an API endpoint with tests, and a bugfix scenario. Each spec must declare its own acceptance criteria and expected artifact set.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only benchmarks-three-specs-present --raw"},
+      "expected": {"exit_code": 0, "contains": ["specs=3", "cli_spec=true", "api_spec=true", "bugfix_spec=true", "all_specs_declare_acceptance=true"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "seeded-bug-fixture-actually-broken",
+      "category": "functional",
+      "runner": "shell",
+      "description": "The bugfix fixture must contain a REAL seeded bug: the fixture's own test suite passes (bug not trivially visible), the held-out verification test fails against shipped code, and applying the known one-line fix makes it pass.",
+      "input": {"command": "python3 skills/build/evals/run_checks.py --only seeded-bug-fixture-actually-broken --raw"},
+      "expected": {"exit_code": 0, "contains": ["fixture_suite_passes=true", "heldout_repro_fails=true", "fix_makes_heldout_pass=true"]},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "benchmark-run-cli-tool",
+      "category": "e2e",
+      "runner": "manual-benchmark",
+      "description": "End-to-end: run /build against 01-cli-tool.md. Must emit ACCEPTANCE.md and a loop driver BEFORE the first implementation commit, and end with all acceptance checks green.",
+      "input": {"benchmark": "skills/build/evals/benchmarks/01-cli-tool.md"},
+      "expected": {
+        "emits_acceptance_artifact": true,
+        "emits_loop_driver": true,
+        "acceptance_artifact_precedes_implementation_commit": true,
+        "final_acceptance_exit_code": 0
+      },
+      "metrics": ["TaskCompletion", "StepEfficiency"]
+    },
+    {
+      "id": "benchmark-run-api-endpoint",
+      "category": "e2e",
+      "runner": "manual-benchmark",
+      "description": "End-to-end: run /build against 02-api-endpoint.md. Tests must be committed before the handler (TDD spine), and the acceptance artifact + loop driver must be emitted.",
+      "input": {"benchmark": "skills/build/evals/benchmarks/02-api-endpoint.md"},
+      "expected": {
+        "emits_acceptance_artifact": true,
+        "emits_loop_driver": true,
+        "failing_test_commit_precedes_implementation_commit": true,
+        "final_acceptance_exit_code": 0
+      },
       "metrics": ["TaskCompletion", "ToolSelection"]
     },
     {
-      "id": "build-feature-brainstorm",
-      "category": "functional",
-      "description": "/build [feature] should enter Phase 1 Brainstorm",
-      "input": {"command": "/build add user authentication"},
-      "expected": {"enters_phase": "Brainstorm", "asks_questions": true},
-      "metrics": ["TaskCompletion", "Coherence"]
-    },
-    {
-      "id": "build-mode-selection",
-      "category": "functional",
-      "description": "After plan approval, should present execution mode options",
-      "input": {"context": "plan approved", "user_says": "looks good"},
-      "expected": {"presents_options": ["Interactive", "Ralph", "Hybrid"]},
-      "metrics": ["TaskCompletion", "Completeness"]
-    },
-    {
-      "id": "build-tdd-enforcement",
-      "category": "safety",
-      "description": "Should BLOCK when code is written before test",
-      "input": {"context": "Phase 4", "action": "writes production code without test"},
-      "expected": {"status": "BLOCK", "message_contains": "test first"},
+      "id": "benchmark-run-bugfix",
+      "category": "e2e",
+      "runner": "manual-benchmark",
+      "description": "End-to-end: run /build against 03-bugfix.md on the seeded-bug fixture. systematic-debugging must be routed before any fix, a failing repro test must exist before the fix commit, and the held-out verification test must pass afterwards.",
+      "input": {"benchmark": "skills/build/evals/benchmarks/03-bugfix.md"},
+      "expected": {
+        "routes_systematic_debugging": true,
+        "emits_acceptance_artifact": true,
+        "emits_loop_driver": true,
+        "repro_test_precedes_fix": true,
+        "heldout_verification_passes": true
+      },
       "metrics": ["TaskCompletion", "ErrorHandling"]
     },
     {
-      "id": "build-quality-gate-duplication",
-      "category": "safety",
-      "description": "Should BLOCK when duplication > 25%",
-      "input": {"context": "Phase 4.75", "duplication_ratio": 0.30},
-      "expected": {"status": "BLOCK", "reason_contains": "duplication"},
-      "metrics": ["TaskCompletion", "ErrorHandling"]
+      "id": "judge-code-quality-benchmarks",
+      "category": "quality",
+      "runner": "llm-judge",
+      "description": "Code produced by the three benchmark runs is graded by an LLM judge (different model family from the builder) against the code-quality rubric. Mean >= 4.0/5 with no single benchmark below 3.5.",
+      "input": {"artifacts": ["benchmark run output 01", "benchmark run output 02", "benchmark run output 03"]},
+      "expected": {
+        "rubric": "Score 1-5 on each dimension: (1) Correctness - does it do what the spec says, with edge cases handled? (2) Test quality - do tests pin real behaviour, or are they tautological? (3) Simplicity - is anything present that is not load-bearing? (4) Readability - could a new engineer follow it in one pass? (5) Safety - input handling, error surfacing, no secrets, no silent failure. Report per-dimension scores and an overall mean.",
+        "min_score": 4.0,
+        "min_score_per_benchmark": 3.5,
+        "judge_model_family": "different from builder"
+      },
+      "metrics": ["Quality"]
     },
     {
-      "id": "build-quality-gate-warn",
-      "category": "functional",
-      "description": "Should WARN when duplication 15-25%",
-      "input": {"context": "Phase 4.75", "duplication_ratio": 0.20},
-      "expected": {"status": "WARN", "proceeds": true},
-      "metrics": ["TaskCompletion"]
-    },
-    {
-      "id": "build-plain-english-summary",
-      "category": "functional",
-      "description": "Phase 6.5 should produce non-technical summary",
-      "input": {"context": "Phase 6.5", "changes": "added auth module"},
-      "expected": {"contains_sections": ["What We Built", "How It Works", "Quality Report"]},
-      "metrics": ["Coherence", "Completeness"]
-    },
-    {
-      "id": "build-completion-options",
-      "category": "functional",
-      "description": "Phase 7 should present merge/PR/keep/discard options",
-      "input": {"context": "Phase 7", "tests_pass": true},
-      "expected": {"presents_options": ["Merge", "PR", "Keep branch", "Discard"]},
-      "metrics": ["TaskCompletion", "Completeness"]
-    },
-    {
-      "id": "build-worktree-setup",
-      "category": "functional",
-      "description": "Phase 3 should create git worktree for multi-file changes",
-      "input": {"context": "Phase 3", "file_count": 5},
-      "expected": {"creates_worktree": true, "verifies_baseline": true},
-      "metrics": ["TaskCompletion"]
-    },
-    {
-      "id": "build-skip-small-change",
-      "category": "functional",
-      "description": "Phase 3 should skip worktree for small changes",
-      "input": {"context": "Phase 3", "file_count": 2},
-      "expected": {"skips_worktree": true},
-      "metrics": ["TaskCompletion", "StepEfficiency"]
+      "id": "judge-skill-md-dispatch-clarity",
+      "category": "quality",
+      "runner": "llm-judge",
+      "description": "An LLM judge reads SKILL.md cold and must be able to state, for a given task type, which practice skill fires at each phase and which are skipped.",
+      "input": {"artifacts": ["skills/build/SKILL.md"]},
+      "expected": {
+        "rubric": "Score 1-5: (1) Given 'fix a flaky test', can the judge name the exact routing path from SKILL.md alone? (2) Are skip conditions unambiguous rather than 'use judgement'? (3) Is the acceptance-first + loop-driver requirement stated as mandatory and unmissable? (4) Is it clear what degrades in the restricted sandbox? (5) Is SKILL.md free of content that belongs in references/?",
+        "min_score": 4.0
+      },
+      "metrics": ["Coherence", "Formatting"]
     }
   ]
 }

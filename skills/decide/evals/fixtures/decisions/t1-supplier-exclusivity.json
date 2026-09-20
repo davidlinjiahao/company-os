@@ -1,0 +1,55 @@
+{
+  "id": "t1-supplier-exclusivity",
+  "decision": "Sign the 3-year exclusive supply agreement with Kestrel Optics",
+  "door_type": "1-way",
+  "framing": {
+    "context": "Kestrel Optics is the only vendor shipping the 1.6um sensor stack our inspection head needs at our price point. They offered a 3-year agreement at 22% below list. In exchange we must buy 100% of sensor volume from them. The contract has no minimum capacity commitment on their side and no price protection past year one. Kestrel's other customer is a defense prime that outbids us and takes priority in any shortage. Our board wants the COGS cut booked before the Series A.",
+    "options": [
+      "Sign the exclusive as offered",
+      "Counter: non-exclusive, 70% volume commitment, capacity SLA + price cap",
+      "Walk and qualify a second source (6 months, $180k NRE)"
+    ],
+    "deadline": "2026-08-21",
+    "owner": "Alex"
+  },
+  "members": [
+    {
+      "name": "Alex",
+      "role": "CEO",
+      "lean": "MODIFY",
+      "confidence": 6,
+      "decisive_reason": "The discount is real but we are buying it with the only leverage we have.",
+      "answers": {
+        "P1_timing": "Kestrel's quote expires 2026-08-21 but that is their sales-cycle deadline, not ours. Real cost of waiting 30 days is one quarter of margin, roughly $90k.",
+        "P2_reversibility": "1-way. Exclusivity locks us out of qualifying anyone else for 3 years, and requalification takes 6 months even after the term ends.",
+        "P3_expected_value": "Base case: 22% COGS cut worth ~$1.4M over 3 years. Upside: Kestrel scales with us. Downside: a shortage year costs us a product launch.",
+        "P4_downside_cap": "Max loss is not the money, it is a missed Figure delivery window. That is survivable once, not twice.",
+        "P5_opportunity_cost": "$180k NRE and 6 months of a firmware engineer to dual-source. That engineer is otherwise on the ISP acceptance work.",
+        "P6_information": "The crux is whether Kestrel will put a capacity SLA in writing. We have never asked. One email, three days.",
+        "P7_second_order": "Exclusivity makes us a price-taker at renewal. It also tells the defense prime we are captive, which lowers their cost to squeeze us.",
+        "P8_strategy_fit": "Cutting COGS fits. Becoming dependent on a supplier whose bigger customer outranks us does not.",
+        "P9_owner": "I decide. Board is informed, not consulted, under $2M.",
+        "P10_kill_criteria": "If Kestrel misses two consecutive delivery windows in year one we should be able to exit. Today's draft has no such clause."
+      }
+    },
+    {
+      "name": "Jordan",
+      "role": "Head of Ops",
+      "lean": "GO",
+      "confidence": 7,
+      "decisive_reason": "We do not have the cash or the headcount to run two supply chains.",
+      "answers": {
+        "P1_timing": "Decide now. Q3 build starts 2026-09-01 and long-lead parts need a PO.",
+        "P2_reversibility": "Practically 2-way. Contracts get renegotiated when volumes move.",
+        "P3_expected_value": "The 22% is banked cash. Shortage risk is maybe 20% in any given year.",
+        "P4_downside_cap": "Worst case we buy spot at list for a quarter. Painful, not fatal.",
+        "P5_opportunity_cost": "Dual-sourcing costs us the ISP acceptance schedule, which is the actual company-killer.",
+        "P6_information": "I want Kestrel's fab allocation numbers, but they will not share them.",
+        "P7_second_order": "A committed supplier ships us engineering samples first. That compounds.",
+        "P8_strategy_fit": "Yes. Cost discipline is how we survive to Series A.",
+        "P9_owner": "Alex decides, I execute.",
+        "P10_kill_criteria": "One missed window and we start qualifying a backup regardless of contract."
+      }
+    }
+  ]
+}

@@ -1,0 +1,379 @@
+{
+  "component": "decide",
+  "type": "skill",
+  "version": "3.0",
+  "preregistered": "2026-08-03",
+  "notes": "PRE-REGISTERED BEFORE THE REBUILD. v3 is the simplified team decision framework: frame + classify door -> each member answers the 10 principles -> aggregate -> 3-model panel running BOTH a game-theory lens and a Hegelian dialectic lens -> recommendation brief + one ledger row. Cases are in three tiers. STATIC cases check the skill's artifacts with deterministic string/regex checks (no model, no network). RUNTIME cases execute scripts/panel.py and scripts/ledger.py against the frozen fixtures in evals/fixtures/ and check the produced artifacts and run log. JUDGE cases replay 5 synthetic historical decisions whose known-good outcomes are frozen in the fixture files and score the produced brief with gpt-5.6-sol, threshold 4.0/5. Runner: python3 evals/run.py --all. Gold answers and thresholds: evals/GOLD.md.",
+  "ledger_row_regex": "^\\| \\d{4}-\\d{2}-\\d{2} \\| [^|]{3,120} \\| (1-way|2-way) \\| (GO|NO-GO|MODIFY|DEFER) \\| [^|]{1,60} \\| outcome:pending \\|$",
+  "judge_model": "gpt-5.6-sol",
+  "judge_threshold": 4.0,
+  "panel_models": ["claude-fable-5", "gpt-5.6-sol", "grok-4.5"],
+  "cases": [
+
+    {
+      "id": "s01-frontmatter-valid",
+      "tier": "static",
+      "category": "functional",
+      "description": "SKILL.md has valid frontmatter with name and description",
+      "input": {"target": "SKILL.md"},
+      "expected": {"regex": ["(?s)^---\\n.*?^name: decide$.*?^description: .{40,}$.*?^---$"]},
+      "metrics": ["ConfigParsing", "OutputValidity"]
+    },
+    {
+      "id": "s02-progressive-disclosure",
+      "tier": "static",
+      "category": "functional",
+      "description": "SKILL.md stays lean (<=200 lines) and delegates detail to references/",
+      "input": {"target": "SKILL.md"},
+      "expected": {
+        "max_lines": 200,
+        "contains": ["references/principles.md", "references/game-theory.md", "references/dialectic.md", "references/output-format.md"]
+      },
+      "metrics": ["Formatting", "Completeness"]
+    },
+    {
+      "id": "s03-reference-files-exist",
+      "tier": "static",
+      "category": "functional",
+      "description": "All referenced detail files and scripts exist",
+      "input": {"target": "SKILL.md"},
+      "expected": {"files_exist": [
+        "references/principles.md",
+        "references/game-theory.md",
+        "references/dialectic.md",
+        "references/aggregation.md",
+        "references/output-format.md",
+        "scripts/panel.py",
+        "scripts/ledger.py"
+      ]},
+      "metrics": ["FileIntegrity"]
+    },
+    {
+      "id": "s04-five-step-flow",
+      "tier": "static",
+      "category": "functional",
+      "description": "SKILL.md states the five-step flow: frame+classify, member forms, aggregate, panel, output",
+      "input": {"target": "SKILL.md"},
+      "expected": {"contains": ["Frame", "Classify", "1-way", "2-way", "Aggregate", "Panel", "Ledger"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "s05-ten-principles-named",
+      "tier": "static",
+      "category": "functional",
+      "description": "The 10 principles are exactly the pre-registered ten (see GOLD.md)",
+      "input": {"target": "references/principles.md"},
+      "expected": {"contains": [
+        "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10",
+        "Timing", "Reversibility", "Expected value", "Downside cap", "Opportunity cost",
+        "Information", "Second-order", "Strategy", "Who decides", "Kill criteria"
+      ]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "s06-form-is-askable",
+      "tier": "static",
+      "category": "functional",
+      "description": "Each principle ships as one crisp question a Slack agent can ask, plus the answer shape it expects",
+      "input": {"target": "references/principles.md"},
+      "expected": {
+        "regex": ["(?s)P1_timing.*P2_reversibility.*P3_expected_value.*P4_downside_cap.*P5_opportunity_cost.*P6_information.*P7_second_order.*P8_strategy_fit.*P9_owner.*P10_kill_criteria"],
+        "contains": ["Slack", "Ask:", "Answer shape:"]
+      },
+      "metrics": ["Completeness", "Formatting"]
+    },
+    {
+      "id": "s07-form-closes-with-verdict",
+      "tier": "static",
+      "category": "functional",
+      "description": "The member form closes with lean, confidence and single decisive reason",
+      "input": {"target": "references/principles.md"},
+      "expected": {"contains": ["lean", "confidence", "decisive reason"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "s08-twoway-fast-path",
+      "tier": "static",
+      "category": "functional",
+      "description": "2-way doors get the fast path: no panel, quick recommendation, still a ledger row",
+      "input": {"target": "SKILL.md"},
+      "expected": {"contains": ["fast path", "skip the panel", "ledger row"]},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "s09-game-theory-preserved",
+      "tier": "static",
+      "category": "functional",
+      "description": "The game-theory lens keeps players/interests/BATNAs/leverage, equilibria and third doors",
+      "input": {"target": "references/game-theory.md"},
+      "expected": {"contains": [
+        "players", "interest", "BATNA", "leverage", "Nash equilibri",
+        "unilateral", "natural equilibrium", "reachable", "third door", "positive-sum"
+      ]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "s10-dialectic-lens-present",
+      "tier": "static",
+      "category": "functional",
+      "description": "The dialectic lens keeps thesis / antithesis / sublation and determinate negation",
+      "input": {"target": "references/dialectic.md"},
+      "expected": {"contains": ["thesis", "antithesis", "sublation", "determinate negation", "not a compromise"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "s11-three-models-declared",
+      "tier": "static",
+      "category": "functional",
+      "description": "panel.py targets exactly the three frontier models on their own APIs, keyed from env vars",
+      "input": {"target": "scripts/panel.py"},
+      "expected": {"contains": [
+        "claude-fable-5", "gpt-5.6-sol", "grok-4.5",
+        "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "XAI_API_KEY",
+        "api.anthropic.com", "api.openai.com", "api.x.ai"
+      ]},
+      "metrics": ["Completeness", "OutputValidity"]
+    },
+    {
+      "id": "s12-panel-runs-both-lenses",
+      "tier": "static",
+      "category": "functional",
+      "description": "panel.py runs both lenses across all three models and merges the outputs",
+      "input": {"target": "scripts/panel.py"},
+      "expected": {"contains": ["game_theory", "dialectic", "merge"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "s13-panel-stdlib-only",
+      "tier": "static",
+      "category": "functional",
+      "description": "panel.py runs in the restricted sandbox: python3 stdlib only, no third-party imports",
+      "input": {"target": "scripts/panel.py"},
+      "expected": {"regex_not": ["^\\s*(import|from)\\s+(requests|anthropic|openai|httpx|pydantic|yaml|dotenv)\\b"]},
+      "metrics": ["OutputValidity"]
+    },
+    {
+      "id": "s14-two-runtimes-guarded",
+      "tier": "static",
+      "category": "functional",
+      "description": "SKILL.md declares both runtimes and guards every MCP-dependent step as optional",
+      "input": {"target": "SKILL.md"},
+      "expected": {"contains": ["restricted sandbox", "Claude Code", "optional", "skip"]},
+      "metrics": ["ErrorHandling"]
+    },
+    {
+      "id": "s15-no-obsidian-notion",
+      "tier": "static",
+      "category": "safety",
+      "description": "No Obsidian or Notion dependency anywhere in the skill",
+      "input": {"target": "**/*.md,**/*.py"},
+      "expected": {"must_not_contain": ["mcp__obsidian", "mcp__notion", "Obsidian", "Notion"]},
+      "metrics": ["OutputValidity"]
+    },
+    {
+      "id": "s16-no-hosted-sinks",
+      "tier": "static",
+      "category": "safety",
+      "description": "Output stays local — no hosted decision database or company-controlled sink",
+      "input": {"target": "**/*.md,**/*.py"},
+      "expected": {"must_not_contain": ["vercel.app", "Upstash", "upstash"]},
+      "metrics": ["OutputValidity"]
+    },
+    {
+      "id": "s17-ledger-row-schema-documented",
+      "tier": "static",
+      "category": "functional",
+      "description": "The one-row ledger schema is documented with the exact column order",
+      "input": {"target": "references/output-format.md"},
+      "expected": {"contains": ["| date | decision | type | recommendation | owner | outcome:pending |", "outcome:pending"]},
+      "metrics": ["Formatting", "OutputValidity"]
+    },
+    {
+      "id": "s18-brief-sections-specified",
+      "tier": "static",
+      "category": "functional",
+      "description": "The recommendation brief specifies the required sections including member divergence",
+      "input": {"target": "references/output-format.md"},
+      "expected": {"contains": ["Recommendation", "Where the team diverged", "Game theory", "Dialectic", "Kill criteria", "What would change the answer"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "s19-aggregation-surfaces-divergence",
+      "tier": "static",
+      "category": "functional",
+      "description": "Aggregation must carry every member's divergent answer into the panel, not average them away",
+      "input": {"target": "references/aggregation.md"},
+      "expected": {"contains": ["divergence", "verbatim", "never average"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "s20-missing-key-degrades",
+      "tier": "static",
+      "category": "error-handling",
+      "description": "panel.py degrades gracefully when a provider key is absent instead of crashing",
+      "input": {"target": "scripts/panel.py"},
+      "expected": {"contains": ["skipped_no_key"]},
+      "metrics": ["ErrorHandling"]
+    },
+
+    {
+      "id": "r01-ledger-row-t1",
+      "tier": "runtime",
+      "category": "functional",
+      "description": "Test decision 1 (1-way, supplier exclusivity) produces a schema-valid ledger row",
+      "input": {
+        "run": "python3 scripts/panel.py --decision-file evals/fixtures/decisions/t1-supplier-exclusivity.json --out $RUNDIR/t1",
+        "artifact": "$RUNDIR/t1/panel.json",
+        "json_field": "ledger_row"
+      },
+      "expected": {"regex": ["@ledger_row_regex"]},
+      "metrics": ["OutputValidity", "TaskCompletion"]
+    },
+    {
+      "id": "r02-ledger-row-t2-fastpath",
+      "tier": "runtime",
+      "category": "functional",
+      "description": "Test decision 2 (2-way, observability vendor) produces a schema-valid ledger row on the fast path without the panel",
+      "input": {
+        "run": "python3 scripts/ledger.py --date 2026-08-03 --decision 'Pick an observability vendor for the inference service' --type 2-way --recommendation GO --owner Jordan"
+      },
+      "expected": {"regex": ["@ledger_row_regex"]},
+      "metrics": ["OutputValidity", "TaskCompletion"]
+    },
+    {
+      "id": "r03-ledger-row-t3",
+      "tier": "runtime",
+      "category": "functional",
+      "description": "Test decision 3 (1-way, VP Eng offer, 3 divergent members) produces a schema-valid ledger row",
+      "input": {
+        "run": "python3 scripts/panel.py --decision-file evals/fixtures/decisions/t3-vp-eng-offer.json --out $RUNDIR/t3",
+        "artifact": "$RUNDIR/t3/panel.json",
+        "json_field": "ledger_row"
+      },
+      "expected": {"regex": ["@ledger_row_regex"]},
+      "metrics": ["OutputValidity", "TaskCompletion"]
+    },
+    {
+      "id": "r04-log-proves-three-models-t1",
+      "tier": "runtime",
+      "category": "functional",
+      "description": "The run log proves all three frontier models were actually called and returned OK on t1",
+      "input": {"artifact": "$RUNDIR/t1/panel-log.jsonl", "depends_on": "r01-ledger-row-t1"},
+      "expected": {"jsonl_ok_models": ["claude-fable-5", "gpt-5.6-sol", "grok-4.5"]},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "r05-log-proves-three-models-t3",
+      "tier": "runtime",
+      "category": "functional",
+      "description": "The run log proves all three frontier models were actually called and returned OK on t3",
+      "input": {"artifact": "$RUNDIR/t3/panel-log.jsonl", "depends_on": "r03-ledger-row-t3"},
+      "expected": {"jsonl_ok_models": ["claude-fable-5", "gpt-5.6-sol", "grok-4.5"]},
+      "metrics": ["TaskCompletion"]
+    },
+    {
+      "id": "r06-log-proves-both-lenses",
+      "tier": "runtime",
+      "category": "functional",
+      "description": "Every model ran both the game-theory lens and the dialectic lens (6 successful calls)",
+      "input": {"artifact": "$RUNDIR/t3/panel-log.jsonl", "depends_on": "r03-ledger-row-t3"},
+      "expected": {"jsonl_ok_pairs": [
+        ["claude-fable-5", "game_theory"], ["claude-fable-5", "dialectic"],
+        ["gpt-5.6-sol", "game_theory"], ["gpt-5.6-sol", "dialectic"],
+        ["grok-4.5", "game_theory"], ["grok-4.5", "dialectic"]
+      ]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "r07-divergent-members-referenced",
+      "tier": "runtime",
+      "category": "functional",
+      "description": "All three divergent member inputs (Alex MODIFY, Jordan GO, Riley NO-GO) are each referenced in the merged output",
+      "input": {"artifact": "$RUNDIR/t3/panel.json", "depends_on": "r03-ledger-row-t3"},
+      "expected": {"member_coverage_all": ["Alex", "Jordan", "Riley"]},
+      "metrics": ["Completeness", "TaskCompletion"]
+    },
+    {
+      "id": "r08-divergence-in-brief",
+      "tier": "runtime",
+      "category": "functional",
+      "description": "The generated brief names each member's distinct position rather than collapsing them",
+      "input": {"artifact": "$RUNDIR/t3/brief.md", "depends_on": "r03-ledger-row-t3"},
+      "expected": {"contains": ["Alex", "Jordan", "Riley", "Where the team diverged"]},
+      "metrics": ["Completeness"]
+    },
+    {
+      "id": "r09-panel-refuses-twoway",
+      "tier": "runtime",
+      "category": "error-handling",
+      "description": "Running the panel on a 2-way door is refused — the fast path exists and is enforced",
+      "input": {"run": "python3 scripts/panel.py --decision-file evals/fixtures/decisions/t2-observability-vendor.json --out $RUNDIR/t2", "expect_exit_nonzero": true},
+      "expected": {"contains": ["2-way", "fast path"]},
+      "metrics": ["ErrorHandling"]
+    },
+    {
+      "id": "r10-missing-key-degrades-live",
+      "tier": "runtime",
+      "category": "error-handling",
+      "description": "With XAI_API_KEY unset, the panel still completes on two models and records the skip rather than crashing",
+      "input": {"run": "python3 scripts/panel.py --decision-file evals/fixtures/decisions/t1-supplier-exclusivity.json --out $RUNDIR/degraded --lenses game_theory", "unset_env": ["XAI_API_KEY"], "artifact": "$RUNDIR/degraded/panel-log.jsonl"},
+      "expected": {"contains": ["skipped_no_key", "grok-4.5"], "jsonl_ok_models": ["claude-fable-5", "gpt-5.6-sol"]},
+      "metrics": ["ErrorHandling"]
+    },
+    {
+      "id": "r11-ledger-rejects-bad-row",
+      "tier": "runtime",
+      "category": "safety",
+      "description": "ledger.py rejects an out-of-enum recommendation instead of emitting an invalid row",
+      "input": {"run": "python3 scripts/ledger.py --date 2026-08-03 --decision 'Bad row' --type 1-way --recommendation MAYBE --owner Alex", "expect_exit_nonzero": true},
+      "expected": {"contains": ["recommendation"]},
+      "metrics": ["OutputValidity", "ErrorHandling"]
+    },
+
+    {
+      "id": "j01-historical-exclusive-distribution",
+      "tier": "judge",
+      "category": "functional",
+      "description": "Historical decision H1: exclusive distribution to a distributor with a competing house brand and no commitments",
+      "input": {"fixture": "evals/fixtures/historical/h1-exclusive-distribution.json"},
+      "expected": {"llm_judge": {"model": "gpt-5.6-sol", "rubric": "GOLD.md#judge-rubric", "min_score": 4.0}},
+      "metrics": ["TaskCompletion", "FactualAccuracy"]
+    },
+    {
+      "id": "j02-historical-raise-now-or-wait",
+      "tier": "judge",
+      "category": "functional",
+      "description": "Historical decision H2: take the committed flat round now vs wait for the enterprise metric",
+      "input": {"fixture": "evals/fixtures/historical/h2-raise-now-or-wait.json"},
+      "expected": {"llm_judge": {"model": "gpt-5.6-sol", "rubric": "GOLD.md#judge-rubric", "min_score": 4.0}},
+      "metrics": ["TaskCompletion", "FactualAccuracy"]
+    },
+    {
+      "id": "j03-historical-cofounder-control",
+      "tier": "judge",
+      "category": "functional",
+      "description": "Historical decision H3: fight for control, stay diminished, or negotiate an exit when the board math is 3-1 against",
+      "input": {"fixture": "evals/fixtures/historical/h3-cofounder-control.json"},
+      "expected": {"llm_judge": {"model": "gpt-5.6-sol", "rubric": "GOLD.md#judge-rubric", "min_score": 4.0}},
+      "metrics": ["TaskCompletion", "FactualAccuracy"]
+    },
+    {
+      "id": "j04-historical-pivot-funding",
+      "tier": "judge",
+      "category": "functional",
+      "description": "Historical decision H4: hard-cut the legacy segment that funds the pivot, or stage it",
+      "input": {"fixture": "evals/fixtures/historical/h4-pivot-funding.json"},
+      "expected": {"llm_judge": {"model": "gpt-5.6-sol", "rubric": "GOLD.md#judge-rubric", "min_score": 4.0}},
+      "metrics": ["TaskCompletion", "FactualAccuracy"]
+    },
+    {
+      "id": "j05-historical-anchor-customer-nre",
+      "tier": "judge",
+      "category": "functional",
+      "description": "Historical decision H5: a well-structured, IP-retaining, field-limited NRE deal the framework should say YES to",
+      "input": {"fixture": "evals/fixtures/historical/h5-anchor-customer-nre.json"},
+      "expected": {"llm_judge": {"model": "gpt-5.6-sol", "rubric": "GOLD.md#judge-rubric", "min_score": 4.0}},
+      "metrics": ["TaskCompletion", "FactualAccuracy"]
+    }
+  ]
+}
